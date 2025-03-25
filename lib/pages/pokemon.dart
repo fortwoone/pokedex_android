@@ -41,9 +41,6 @@ class PokemonListState extends State<PokemonList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Pokédex'),
-      ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : ListView.builder(
