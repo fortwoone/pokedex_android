@@ -1,0 +1,15 @@
+{
+    "appTitle": "Pokédex",
+    "moves": "Moves",
+    "@moves": {
+        "description": "Shown under the Moves icon in the navbar."
+    },
+    "abilities": "Abilities",
+    "@abilities": {
+        "description": "Shown under the Abilities icon in the navbar."
+    },
+    "history": "History",
+    "@history": {
+        "description": "Shown under the History icon in the navbar."
+    }
+}

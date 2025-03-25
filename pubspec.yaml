@@ -11,6 +11,9 @@ dependencies:
     sdk: flutter
   material_color_utilities: ^0.11.1
   pokeapi: ^1.0.3
+  flutter_localizations:
+    sdk: flutter
+  intl: any
 
 dev_dependencies:
   flutter_test:
@@ -23,6 +26,7 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  generate: true
   fonts:
     - family: Lato
       fonts:
@@ -34,6 +38,6 @@ flutter:
           - asset: assets/fonts/Lato-BoldItalic.ttf
             style: italic
             weight: 700
-    - family: PokeBallIcons
+    - family: PokeIcons
       fonts:
-        - asset: assets/fonts/PokeBall.ttf
+        - asset: assets/fonts/PokeIcons.ttf
