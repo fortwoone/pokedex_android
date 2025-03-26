@@ -21,6 +21,7 @@
 ///         License:   SIL (https://github.com/FortAwesome/Font-Awesome/blob/master/LICENSE.txt)
 ///         Homepage:  http://fortawesome.github.com/Font-Awesome/
 ///
+library;
 import 'package:flutter/widgets.dart';
 
 class PokeIcons {
@@ -30,6 +31,6 @@ class PokeIcons {
   static const String? _kFontPkg = null;
 
   static const IconData pokeball = IconData(0xe800, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-  static const IconData training_machine = IconData(0xe801, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData trainingMachine = IconData(0xe801, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData ability = IconData(0xf6de, fontFamily: _kFontFam, fontPackage: _kFontPkg);
 }

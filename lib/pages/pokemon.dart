@@ -4,7 +4,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
+// import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:pokeapi/model/pokemon/pokemon-specie.dart';
 import 'package:pokeapi/model/pokemon/pokemon.dart';
@@ -15,7 +15,7 @@ String? _getLocalPokemonName(PokemonSpecie specie){
     return specie.names![Platform.localeName.startsWith('en') ? 8 : 4].name;
 }
 
-final POKE_COUNT_PER_PAGE = 20;
+final pokeCountPerPage = 20;
 
 class PokemonList extends StatefulWidget {
     const PokemonList({super.key});
@@ -38,8 +38,8 @@ class PokemonListState extends State<PokemonList> {
     Future<void> _fetchPokemonList() async {
       try {
         // Get all pokemon
-        final pokemonList = await PokeAPI.getObjectList<Pokemon>(1, POKE_COUNT_PER_PAGE);
-        final speciesList = await PokeAPI.getObjectList<PokemonSpecie>(1, POKE_COUNT_PER_PAGE);
+        final pokemonList = await PokeAPI.getObjectList<Pokemon>(1, pokeCountPerPage);
+        final speciesList = await PokeAPI.getObjectList<PokemonSpecie>(1, pokeCountPerPage);
         setState(() {
           _pokemonList = pokemonList.cast<Pokemon>();
           _speciesList = speciesList.cast<PokemonSpecie>();
@@ -170,7 +170,7 @@ class PokemonDetail extends StatelessWidget {
 
     @override
     Widget build(BuildContext context) {
-        String? name = _getLocalPokemonName(specie);
+        String? _ = _getLocalPokemonName(specie);
 
         AppLocalizations loc = AppLocalizations.of(context)!;
         return Scaffold(

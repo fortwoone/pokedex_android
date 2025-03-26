@@ -20,7 +20,7 @@ class _MoveNavItem extends StatelessWidget{
     Widget build(BuildContext context) {
         return Scaffold(
             body: NavigationDestination(
-                icon: Icon(PokeIcons.training_machine),
+                icon: Icon(PokeIcons.trainingMachine),
                 label: AppLocalizations.of(context)!.moves,
             )
         );
@@ -89,8 +89,8 @@ class _MainAppState extends State<MainApp> {
                 GlobalCupertinoLocalizations.delegate, // Pour traduire les widgets iOS (Cupertino)
             ],
             supportedLocales:[
-                Locale("en"),
-                Locale("fr")
+                Locale("en", "US"),
+                Locale("fr", "FR")
             ],
             theme: ThemeData(
                 fontFamily: "Lato"
