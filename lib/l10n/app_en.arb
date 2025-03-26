@@ -11,5 +11,33 @@
     "history": "History",
     "@history": {
         "description": "Shown under the History icon in the navbar."
+    },
+    "poke_info": "Pokémon Info",
+    "@poke_info": {
+        "description": "The Pokémon's information. This text is shown in the app bar."
+    },
+    "hp": "HP",
+    "@hp": {
+        "description": "The Pokémon's Hit Points (HP). Depleting a Pokémon's HP causes it to faint."
+    },
+    "attack": "Attack",
+    "@attack": {
+        "description": "The Pokémon's attack. Used when calculating damage from physical moves."
+    },
+    "defence": "Defence",
+    "@defence": {
+        "description": "The Pokémon's physical defence. Factored in to reduce damage from physical moves used by the opponent."
+    },
+    "spatk": "Sp. Attack",
+    "@spatk": {
+        "description": "The Pokémon's special attack. Used to calculate damage from special moves."
+    },
+    "spdef": "Sp. Defence",
+    "@spdef": {
+        "description": "The Pokémon's special defence. Factored in to reduce damage from special moves."
+    },
+    "speed": "Speed",
+    "@speed": {
+        "description": "The Pokémon's speed. Determines turn order (unless move priority comes into play)."
     }
 }

@@ -2,5 +2,12 @@
     "appTitle": "Pokédex",
     "moves": "Attaques",
     "abilities": "Capacités",
-    "history": "Historique"
+    "history": "Historique",
+    "poke_info": "Infos du Pokémon",
+    "hp": "PV",
+    "attack": "Attaque",
+    "defence": "Défense",
+    "spatk": "Attaque Spé.",
+    "spdef": "Défense Spé.",
+    "speed": "Vitesse"
 }

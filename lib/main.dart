@@ -61,76 +61,76 @@ class MainApp extends StatefulWidget {
 }
 
 class _MainAppState extends State<MainApp> {
-  int _pageIndex = 0;
+    int _pageIndex = 0;
 
-  Widget _getBodyWidget(){
-      switch (_pageIndex){
-          case 0:
-              return PokemonList();
-          case 1:
-              return Moves();
-          case 2:
-              return TalentInfo();
-          case 3:
-              return History();
-          default:
-              throw UnsupportedError("Invalid page index.");
-      }
-  }
+    Widget _getBodyWidget(){
+        switch (_pageIndex){
+            case 0:
+                return PokemonList();
+            case 1:
+                return Moves();
+            case 2:
+                return TalentInfo();
+            case 3:
+                return History();
+            default:
+                throw UnsupportedError("Invalid page index.");
+        }
+    }
 
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: "Pokédex",
-      localizationsDelegates: [
-          AppLocalizations.delegate,
-          GlobalMaterialLocalizations.delegate, // Pour traduire les widgets Material
-          GlobalWidgetsLocalizations.delegate, // Pour traduire les widgets génériques
-          GlobalCupertinoLocalizations.delegate, // Pour traduire les widgets iOS (Cupertino)
-      ],
-      supportedLocales:[
-          Locale("en"),
-          Locale("fr")
-      ],
-      theme: ThemeData(
-          fontFamily: "Lato"
-      ),
-      home: Scaffold(
-        appBar: AppBar(
-            title: Center(
-                child: const Text(
-                    "Pokédex",
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold
-                    )
-                )
+    @override
+    Widget build(BuildContext context) {
+        return MaterialApp(
+            title: "Pokédex",
+            localizationsDelegates: [
+                AppLocalizations.delegate,
+                GlobalMaterialLocalizations.delegate, // Pour traduire les widgets Material
+                GlobalWidgetsLocalizations.delegate, // Pour traduire les widgets génériques
+                GlobalCupertinoLocalizations.delegate, // Pour traduire les widgets iOS (Cupertino)
+            ],
+            supportedLocales:[
+                Locale("en"),
+                Locale("fr")
+            ],
+            theme: ThemeData(
+                fontFamily: "Lato"
             ),
-            backgroundColor: Colors.red
-        ),
-        bottomNavigationBar: NavigationBar(
-            onDestinationSelected: (int index){
-                setState(
-                    (){
-                        _pageIndex = index;
-                    }
-                );
-            },
-            indicatorColor: Colors.redAccent,
-            selectedIndex: _pageIndex,
-            destinations: <Widget>[
-                NavigationDestination(
-                    icon: Icon(PokeIcons.pokeball),
-                    label: 'Pokémon',
+            home: Scaffold(
+                appBar: AppBar(
+                    title: Center(
+                        child: const Text(
+                            "Pokédex",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold
+                            )
+                        )
+                    ),
+                    backgroundColor: Colors.red
                 ),
-                _MoveNavItem(),
-                _AbilityNavItem(),
-                _HistoryNavItem()
-            ]
-          ),
-          body: _getBodyWidget()
-      )
-    );
-  }
+                bottomNavigationBar: NavigationBar(
+                    onDestinationSelected: (int index){
+                        setState(
+                            (){
+                                _pageIndex = index;
+                            }
+                        );
+                    },
+                    indicatorColor: Colors.redAccent,
+                    selectedIndex: _pageIndex,
+                    destinations: <Widget>[
+                        NavigationDestination(
+                            icon: Icon(PokeIcons.pokeball),
+                            label: 'Pokémon',
+                        ),
+                        _MoveNavItem(),  // these are needed, or else the app will crash when trying to load the translations.
+                        _AbilityNavItem(),
+                        _HistoryNavItem()
+                    ]
+                ),
+                body: _getBodyWidget()
+            )
+        );
+    }
 }
