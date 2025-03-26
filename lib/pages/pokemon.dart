@@ -112,6 +112,9 @@ class PokemonDetail extends StatelessWidget {
             loc.speed
         ];
 
+        var statNameColChildren = <Widget>[];
+        var statValueColChildren = <Widget>[];
+
         var ret = <Widget>[
             Image.network(
               pokemon.sprites?.frontDefault ?? '',
@@ -128,22 +131,39 @@ class PokemonDetail extends StatelessWidget {
         ];
 
         for (int i = 0; i < statNames.length; ++i){
-            ret.add(
-                Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children:[
-                        Text(
-                            statNames[i],
-                            style: statNameTextStyle
-                        ),
-                        Text(
-                            pokemon.stats![0].baseStat.toString(),
-                            style: statValueTextStyle
-                        )
-                    ]
+            statNameColChildren.add(
+                Text(
+                    statNames[i],
+                    style: statNameTextStyle
+                )
+            );
+            statValueColChildren.add(
+                Text(
+                    pokemon.stats![i].baseStat.toString(),
+                    style: statValueTextStyle
                 )
             );
         }
+
+        ret.add(
+            Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                    Center(
+                        child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: statNameColChildren
+                        )
+                    ),
+                    Center(
+                        child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: statValueColChildren
+                        )
+                    )
+                ]
+            )
+        );
 
         return ret;
     }
