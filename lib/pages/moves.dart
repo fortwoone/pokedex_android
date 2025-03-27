@@ -1,70 +1,77 @@
 import 'package:flutter/material.dart';
 import 'package:pokeapi/model/move/move.dart';
 import 'package:pokeapi/model/pokemon/pokemon.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:pokeapi/pokeapi.dart';
 
-class Moves extends StatefulWidget {
-  const Moves({super.key});
+String? _getLocalisedMoveName(AppLocalizations loc, Move move){
+    for (final name in move.names!){
+        if (name.language?.name != null && name.language!.name!.startsWith(loc.localeName)){
+            return name.name!;
+        }
+    }
+    return null;
+}
 
-  @override
-  MovesState createState() => MovesState();
+class Moves extends StatefulWidget {
+    const Moves({super.key});
+
+    @override
+    MovesState createState() => MovesState();
 }
 
 class MovesState extends State<Moves> {
-  List<Move> _movesList = [];
-  bool _isLoading = true;
+    List<Move> _movesList = [];
+    bool _isLoading = true;
 
-  @override
-  void initState() {
-    super.initState();
-    _fetchMovesList();
-  }
-
-  Future<void> _fetchMovesList() async {
-    try {
-      final movesList = await PokeAPI.getObjectList<Move>(
-          1, 20); // Fetch first 100 moves
-      setState(() {
-        _movesList = movesList.cast<Move>();
-        _isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        debugPrint(e.toString());
-        _isLoading = false;
-      });
-      // Handle error
+    @override
+    void initState() {
+      super.initState();
+      _fetchMovesList();
     }
-  }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Moves"),
-        backgroundColor: Colors.red,
-      ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : ListView.builder(
-        itemCount: _movesList.length,
-        itemBuilder: (context, index) {
-          final move = _movesList[index];
-          return ListTile(
-            title: Text(move.name ?? 'Unknown'),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => MoveDetail(move: move),
-                ),
-              );
-            },
-          );
-        },
-      ),
-    );
-  }
+    Future<void> _fetchMovesList() async {
+      try {
+        final movesList = await PokeAPI.getObjectList<Move>(
+            1, 20); // Fetch first 100 moves
+        setState(() {
+          _movesList = movesList.cast<Move>();
+          _isLoading = false;
+        });
+      } catch (e) {
+        setState(() {
+          debugPrint(e.toString());
+          _isLoading = false;
+        });
+        // Handle error
+      }
+    }
+
+    @override
+    Widget build(BuildContext context) {
+        var loc = AppLocalizations.of(context);
+        return Scaffold(
+            body: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : ListView.builder(
+                itemCount: _movesList.length,
+                itemBuilder: (context, index) {
+                    final move = _movesList[index];
+                    return ListTile(
+                        title: Text(_getLocalisedMoveName(loc!, move) ?? 'Unknown'),
+                        onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => MoveDetail(move: move),
+                                ),
+                            );
+                        },
+                    );
+                },
+            ),
+        );
+    }
 }
 
 class MoveDetail extends StatefulWidget {
@@ -79,6 +86,14 @@ class MoveDetail extends StatefulWidget {
 class MoveDetailState extends State<MoveDetail> {
   List<Pokemon> _pokemonList = [];
   bool _isLoading = true;
+
+  final TextStyle statNameTextStyle = const TextStyle(
+      fontSize: 18,
+      fontWeight: FontWeight.bold
+  );
+  final TextStyle statValueTextStyle = const TextStyle(
+      fontSize: 18
+  );
 
   @override
   void initState() {
@@ -103,12 +118,69 @@ class MoveDetailState extends State<MoveDetail> {
     }
   }
 
+  List<TableRow> _getMoveInfo(AppLocalizations loc){
+      List<String> propNames = [
+        loc.move_name,
+        loc.move_accuracy,
+        loc.move_power,
+        loc.move_pp,
+        loc.priority,
+        loc.dmg_class,
+        loc.effect
+      ];
+
+      var dmg_cls_names = {
+        "physical": loc.physical,
+        "special": loc.special,
+        "status": loc.status
+      };
+
+      var shownValues = [
+          _getLocalisedMoveName(loc, widget.move) ?? 'Unknown',
+          widget.move.accuracy != null ? "${widget.move.accuracy!}%" : loc.always_hits,
+          widget.move.power?.toString() ?? '--',
+          widget.move.pp?.toString() ?? 'Unknown',
+          widget.move.priority?.toString() ?? 'Unknown',
+          widget.move.damageClass?.name != null ?
+          dmg_cls_names[widget.move.damageClass?.name]! : 'Unknown',
+          widget.move.effectEntries?.first.shortEffect ?? 'Unknown'
+      ];
+
+      var rows = <TableRow>[];
+      for (int i = 0; i < propNames.length; ++i){
+          rows.add(
+              TableRow(
+                  children:[
+                      Text(
+                          propNames[i],
+                          style: statNameTextStyle
+                      ),
+                      Text(
+                          shownValues[i],
+                          style: statValueTextStyle
+                      )
+                  ]
+              )
+          );
+      }
+      return rows;
+  }
+
   @override
   Widget build(BuildContext context) {
+    var loc = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.move.name ?? 'Unknown'),
-        backgroundColor: Colors.red,
+        title: Text(
+            loc.move_info,
+            style: TextStyle(
+                color: Colors.white,
+                fontSize: 24,
+                fontWeight: FontWeight.bold
+            )
+        ),
+        backgroundColor: Colors.red
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -121,53 +193,10 @@ class MoveDetailState extends State<MoveDetail> {
                 0: FlexColumnWidth(1),
                 1: FlexColumnWidth(2),
               },
-              children: [
-                TableRow(
-                  children: [
-                    const Text('Name:', style: TextStyle(fontWeight: FontWeight.bold)),
-                    Text(widget.move.name ?? 'Unknown'),
-                  ],
-                ),
-                TableRow(
-                  children: [
-                    const Text('Accuracy:', style: TextStyle(fontWeight: FontWeight.bold)),
-                    Text(widget.move.accuracy?.toString() ?? 'Unknown'),
-                  ],
-                ),
-                TableRow(
-                  children: [
-                    const Text('Power:', style: TextStyle(fontWeight: FontWeight.bold)),
-                    Text(widget.move.power?.toString() ?? 'Unknown'),
-                  ],
-                ),
-                TableRow(
-                  children: [
-                    const Text('PP:', style: TextStyle(fontWeight: FontWeight.bold)),
-                    Text(widget.move.pp?.toString() ?? 'Unknown'),
-                  ],
-                ),
-                TableRow(
-                  children: [
-                    const Text('Priority:', style: TextStyle(fontWeight: FontWeight.bold)),
-                    Text(widget.move.priority?.toString() ?? 'Unknown'),
-                  ],
-                ),
-                TableRow(
-                  children: [
-                    const Text('Damage Class:', style: TextStyle(fontWeight: FontWeight.bold)),
-                    Text(widget.move.damageClass?.name ?? 'Unknown'),
-                  ],
-                ),
-                TableRow(
-                  children: [
-                    const Text('Effect:', style: TextStyle(fontWeight: FontWeight.bold)),
-                    Text(widget.move.effectEntries?.first.shortEffect ?? 'Unknown'),
-                  ],
-                ),
-              ],
+              children: _getMoveInfo(loc),
             ),
             const SizedBox(height: 20),
-            const Text('Pokémon that can learn this move:', style: TextStyle(fontWeight: FontWeight.bold)),
+            Text(loc.can_learn, style: TextStyle(fontWeight: FontWeight.bold)),
             Expanded(
               child: ListView.builder(
                 itemCount: _pokemonList.length,

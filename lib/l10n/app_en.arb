@@ -16,6 +16,7 @@
     "@poke_info": {
         "description": "The Pokémon's information. This text is shown in the app bar."
     },
+    "move_info": "Move Info",
     "hp": "HP",
     "@hp": {
         "description": "The Pokémon's Hit Points (HP). Depleting a Pokémon's HP causes it to faint."
@@ -39,5 +40,114 @@
     "speed": "Speed",
     "@speed": {
         "description": "The Pokémon's speed. Determines turn order (unless move priority comes into play)."
-    }
+    },
+    "normal": "Normal",
+    "@normal": {
+        "description": "The Normal type. Plays a role in type effectiveness."
+    },
+    "fighting": "Fighting",
+    "@fighting": {
+        "description": "The Fighting type."
+    },
+    "flying": "Flying",
+    "@flying": {
+        "description": "The Flying type."
+    },
+    "poison": "Poison",
+    "@poison": {
+        "description": "The Poison type."
+    },
+    "ground": "Ground",
+    "@ground": {
+        "description": "The Ground type."
+    },
+    "rock": "Rock",
+    "@rock": {
+        "description": "The Rock type."
+    },
+    "bug": "Bug",
+    "@bug": {
+        "description": "The Bug type."
+    },
+    "ghost": "Ghost",
+    "@ghost": {
+        "description": "The Ghost type."
+    },
+    "steel": "Steel",
+    "@steel": {
+        "description": "The Steel type."
+    },
+    "fire": "Fire",
+    "@fire": {
+        "description": "The Fire type."
+    },
+    "water": "Water",
+    "@water": {
+        "description": "The Water type."
+    },
+    "grass": "Grass",
+    "@grass": {
+        "description": "The Grass type."
+    },
+    "electric": "Electric",
+    "@electric": {
+        "description": "The Electric type."
+    },
+    "psychic": "Psychic",
+    "@psychic": {
+        "description": "The Psychic type."
+    },
+    "ice": "Ice",
+    "@ice": {
+        "description": "The Ice type."
+    },
+    "dragon": "Dragon",
+    "@dragon": {
+        "description": "The Dragon type."
+    },
+    "dark": "Dark",
+    "@dark": {
+        "description": "The Dark type."
+    },
+    "fairy": "Fairy",
+    "@fairy": {
+        "description": "The Fairy type."
+    },
+    "stellar": "Stellar",
+    "@stellar": {
+        "description": "The Stellar Type. Only applies to specific Pokémon when terastallised."
+    },
+    "move_name": "Name: ",
+    "@move_name": {
+        "description": "The Name entry of a move description table."
+    },
+    "move_accuracy": "Accuracy: ",
+    "@move_accuracy": {
+        "description": "The accuracy of a move describes its likeliness to hit."
+    },
+    "always_hits": "Cannot miss",
+    "move_power": "Power: ",
+    "@move_power": {
+        "description": "The power of a move influences the damage dealt with it. Some moves do not deal damage and have no power as a result."
+    },
+    "move_pp": "PP:",
+    "priority": "Priority: ",
+    "@priority": {
+        "description": "The priority of a move determines when it takes effect. Higher-priority moves allow the Pokémon to execute them earlier regardless of Speed, unless the foe is about to perform a move with the same priority."
+    },
+    "dmg_class": "Damage Class: ",
+    "@dmg_class": {
+        "description": "Either physical, special or status. Physical moves use ATK and DEF for damage, while special moves use SPATK and SPDEF for damage calculation."
+    },
+    "effect": "Effect: ",
+    "@effect": {
+        "description": "The effect of a move."
+    },
+    "can_learn": "Pokémon able to learn this move:",
+    "@can_learn": {
+        "description": "Header for the list of Pokémon who can learn the move."
+    },
+    "physical": "Physical",
+    "special": "Special",
+    "status": "Status"
 }

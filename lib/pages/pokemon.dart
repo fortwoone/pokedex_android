@@ -1,18 +1,20 @@
 // a page to display all pokemons or a specific pokemon
 // we use the pokeapi package to get the data
 
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-// import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:pokeapi/model/pokemon/pokemon-specie.dart';
 import 'package:pokeapi/model/pokemon/pokemon.dart';
 import 'package:pokeapi/pokeapi.dart';
 
 /// Returns the local name for the Pokémon species.
-String? _getLocalPokemonName(PokemonSpecie specie){
-    return specie.names![Platform.localeName.startsWith('en') ? 8 : 4].name;
+String? _getLocalPokemonName(AppLocalizations loc, PokemonSpecie specie){
+    for (final name in specie.names!){
+        if (name.language?.name != null && name.language!.name!.startsWith(loc.localeName)) {
+            return name.name!;
+        }
+    }
+    return null;
 }
 
 final pokeCountPerPage = 20;
@@ -64,7 +66,10 @@ class PokemonListState extends State<PokemonList> {
                     itemBuilder: (context, index) {
                         final pokemon = _pokemonList[index];
                         final species = _speciesList[index];
-                        String? name = _getLocalPokemonName(species);
+                        String? name = _getLocalPokemonName(
+                            AppLocalizations.of(context)!,
+                            species
+                        );
                         return ListTile(
                             title: Text(name ?? 'Unknown'),
                             leading: Image.network(pokemon.sprites?.frontDefault ?? ''),
@@ -101,9 +106,9 @@ class PokemonDetail extends StatelessWidget {
     const PokemonDetail({required this.pokemon, required this.specie, super.key});
 
     List<Widget> _getPokeChildrenList(AppLocalizations loc){
-        String? name = _getLocalPokemonName(specie);
+        String? name = _getLocalPokemonName(loc, specie);
 
-        var statNames = [
+        var statNames = <String>[
             loc.hp,
             loc.attack,
             loc.defence,
@@ -112,8 +117,23 @@ class PokemonDetail extends StatelessWidget {
             loc.speed
         ];
 
-        var statNameColChildren = <Widget>[];
-        var statValueColChildren = <Widget>[];
+        var statsTableChildren = <TableRow>[];
+        for (int i = 0; i < statNames.length; ++i){
+            statsTableChildren.add(
+                TableRow(
+                    children: [
+                        Text(
+                            statNames[i],
+                            style: statNameTextStyle
+                        ),
+                        Text(
+                            pokemon.stats![i].baseStat.toString(),
+                            style: statValueTextStyle
+                        )
+                    ]
+                )
+            );
+        }
 
         var ret = <Widget>[
             Image.network(
@@ -128,62 +148,35 @@ class PokemonDetail extends StatelessWidget {
                     fontSize: 20
                 )
             ),
-        ];
-
-        for (int i = 0; i < statNames.length; ++i){
-            statNameColChildren.add(
-                Text(
-                    statNames[i],
-                    style: statNameTextStyle
+            Padding(
+                padding: const EdgeInsets.all(32.0),
+                child: Table(
+                    columnWidths: const{
+                        0: FlexColumnWidth(4),
+                        1: FlexColumnWidth(2)
+                    },
+                    children: statsTableChildren
                 )
-            );
-            statValueColChildren.add(
-                Text(
-                    pokemon.stats![i].baseStat.toString(),
-                    style: statValueTextStyle
-                )
-            );
-        }
-
-        ret.add(
-            Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                    Center(
-                        child: Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: statNameColChildren
-                        )
-                    ),
-                    Center(
-                        child: Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: statValueColChildren
-                        )
-                    )
-                ]
             )
-        );
+        ];
 
         return ret;
     }
 
     @override
     Widget build(BuildContext context) {
-        String? _ = _getLocalPokemonName(specie);
-
         AppLocalizations loc = AppLocalizations.of(context)!;
+        String? _ = _getLocalPokemonName(loc, specie);
+
         return Scaffold(
             appBar: AppBar(
-                title: Center(
-                    child: Text(
-                        loc.poke_info,
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold
-                        )
-                    ),
+                title: Text(
+                    loc.poke_info,
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold
+                    )
                 ),
                 backgroundColor: Colors.red,
             ),
