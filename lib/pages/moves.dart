@@ -157,23 +157,23 @@ class MoveDetailState extends State<MoveDetail> {
   // TODO: show the move's type as well.
   List<TableRow> _getMoveInfo(AppLocalizations loc){
       List<String> propNames = [
-        loc.move_name,
-        loc.move_accuracy,
-        loc.move_power,
-        loc.move_pp,
-        loc.priority,
-        loc.dmg_class,
-        loc.effect
+          loc.move_name,
+          loc.move_accuracy,
+          loc.move_power,
+          loc.move_pp,
+          loc.priority,
+          loc.dmg_class,
+          loc.effect
       ];
 
       var dmg_cls_names = {
-        "physical": loc.physical,
-        "special": loc.special,
-        "status": loc.status
+          "physical": loc.physical,
+          "special": loc.special,
+          "status": loc.status
       };
 
       var shownValues = [
-        getLocalisedMoveName(loc, widget.move) ?? 'Unknown',
+          getLocalisedMoveName(loc, widget.move) ?? 'Unknown',
           widget.move.accuracy != null ? "${widget.move.accuracy!}%" : loc.always_hits,
           widget.move.power?.toString() ?? '--',
           widget.move.pp?.toString() ?? 'Unknown',
@@ -205,51 +205,51 @@ class MoveDetailState extends State<MoveDetail> {
 
   @override
   Widget build(BuildContext context) {
-    var loc = AppLocalizations.of(context)!;
+      var loc = AppLocalizations.of(context)!;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-            loc.move_info,
-            style: TextStyle(
-                color: Colors.white,
-                fontSize: 24,
-                fontWeight: FontWeight.bold
-            )
-        ),
-        backgroundColor: Colors.red
-      ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            Table(
-              columnWidths: const {
-                0: FlexColumnWidth(1),
-                1: FlexColumnWidth(2),
-              },
-              children: _getMoveInfo(loc),
-            ),
-            const SizedBox(height: 20),
-            Text(loc.can_learn, style: TextStyle(fontWeight: FontWeight.bold)),
-            Expanded(
-              child: ListView.builder(
-                itemCount: _pokemonList.length,
-                itemBuilder: (context, index) {
-                  final pokemon = _pokemonList[index];
-                  final specie = _speciesMap[pokemon.id]!;
-                  return ListTile(
-                    title: Text(getLocalPokemonName(loc, specie) ?? 'Unknown'),
-                    leading: Image.network(pokemon.sprites?.frontDefault ?? ''),
-                  );
-                },
+      return Scaffold(
+          appBar: AppBar(
+              title: Text(
+                  loc.move_info,
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold
+                  )
               ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+              backgroundColor: Colors.red
+          ),
+          body: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                  children: [
+                      Table(
+                          columnWidths: const {
+                              0: FlexColumnWidth(1),
+                              1: FlexColumnWidth(2),
+                          },
+                          children: _getMoveInfo(loc),
+                      ),
+                      const SizedBox(height: 20),
+                      Text(loc.can_learn, style: TextStyle(fontWeight: FontWeight.bold)),
+                      Expanded(
+                          child: ListView.builder(
+                              itemCount: _pokemonList.length,
+                              itemBuilder: (context, index) {
+                                  final pokemon = _pokemonList[index];
+                                  final specie = _speciesMap[pokemon.id]!;
+                                  return ListTile(
+                                      title: Text(getLocalPokemonName(loc, specie) ?? 'Unknown'),
+                                      leading: Image.network(pokemon.sprites?.frontDefault ?? ''),
+                                  );
+                              },
+                          ),
+                      ),
+                  ],
+              ),
+          ),
+        );
+    }
 }
