@@ -8,6 +8,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:pokeapi/pokeapi.dart';
 import "package:pokedex/constants.dart";
 import "package:pokedex/localisation_utils.dart";
+import "package:pokeapi/model/utils/converter.dart";
 
 class _PkmnReference{
     late String name;
@@ -15,12 +16,7 @@ class _PkmnReference{
 
     _PkmnReference(Map<String, dynamic> obj) {
         this.name = obj["name"];
-        String url = obj["url"];
-        var end = url.length - 1;
-        var id_start = url.lastIndexOf("/", end - 1) + 1;
-        this.id = int.parse(
-            url.substring(id_start, end)
-        );
+        this.id = int.parse(Converter.urlToId(obj["url"]));
     }
 }
 
@@ -57,7 +53,8 @@ class MovesState extends State<Moves> {
     Future<void> _fetchMovesList() async {
       try {
         final movesList = await PokeAPI.getObjectList<Move>(
-            1, 20); // Fetch first 100 moves
+            1, pokeCountPerPage
+        ); // Fetch first 20 moves
         setState(() {
           _movesList = movesList.cast<Move>();
           _isLoading = false;
@@ -179,7 +176,7 @@ class MoveDetailState extends State<MoveDetail> {
           widget.move.priority?.toString() ?? 'Unknown',
           widget.move.damageClass?.name != null ?
           dmg_cls_names[widget.move.damageClass?.name]! : 'Unknown',
-          widget.move.effectEntries?.first.shortEffect ?? 'Unknown'
+          getLocalisedMoveEffect(loc, widget.move) ?? 'Unknown'
       ];
 
       var rows = <TableRow>[];
