@@ -1,17 +1,41 @@
+import "dart:convert";
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:pokeapi/model/move/move.dart';
+import 'package:pokeapi/model/pokemon/pokemon-specie.dart';
 import 'package:pokeapi/model/pokemon/pokemon.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:pokeapi/pokeapi.dart';
+import "package:pokedex/constants.dart";
+import "package:pokedex/localisation_utils.dart";
 
-String? _getLocalisedMoveName(AppLocalizations loc, Move move){
-    for (final name in move.names!){
-        if (name.language?.name != null && name.language!.name!.startsWith(loc.localeName)){
-            return name.name!;
-        }
+class _PkmnReference{
+    late String name;
+    late int id;
+
+    _PkmnReference(Map<String, dynamic> obj) {
+        this.name = obj["name"];
+        String url = obj["url"];
+        var end = url.length - 1;
+        var id_start = url.lastIndexOf("/", end - 1) + 1;
+        this.id = int.parse(
+            url.substring(id_start, end)
+        );
     }
-    return null;
 }
+
+Future<List<_PkmnReference>> _getPokemonForMove(Move move) async{
+    List<_PkmnReference> pkmn = [];
+    var response = await http.get(Uri.parse("https://pokeapi.co/api/v2/move/${move.id!}"));
+    Map<String, dynamic> parsed = json.decode(response.body);
+    List<dynamic> obtainedPkmn = parsed["learned_by_pokemon"];
+    for (final obj in obtainedPkmn){
+        pkmn.add(_PkmnReference(obj));
+    }
+    return pkmn;
+}
+
+
 
 class Moves extends StatefulWidget {
     const Moves({super.key});
@@ -58,7 +82,7 @@ class MovesState extends State<Moves> {
                 itemBuilder: (context, index) {
                     final move = _movesList[index];
                     return ListTile(
-                        title: Text(_getLocalisedMoveName(loc!, move) ?? 'Unknown'),
+                        title: Text(getLocalisedMoveName(loc!, move) ?? 'Unknown'),
                         onTap: () {
                             Navigator.push(
                                 context,
@@ -85,6 +109,7 @@ class MoveDetail extends StatefulWidget {
 
 class MoveDetailState extends State<MoveDetail> {
   List<Pokemon> _pokemonList = [];
+  Map<int, PokemonSpecie> _speciesMap = {};
   bool _isLoading = true;
 
   final TextStyle statNameTextStyle = const TextStyle(
@@ -103,10 +128,21 @@ class MoveDetailState extends State<MoveDetail> {
 
   Future<void> _fetchPokemonList() async {
     try {
-      // Fetch the first 5 Pokémon
-      final pokemonList = await PokeAPI.getObjectList<Pokemon>(1, 5);
+      _speciesMap.clear();
+      final List<_PkmnReference> pokemonList = await _getPokemonForMove(widget.move);
+      List<Pokemon> currentPage = [];
+      for (int i = 0; i < (pokeCountPerPage / 2); ++i){
+          Pokemon? pk = await PokeAPI.getObject<Pokemon>(pokemonList[i].id);
+          if (pk != null){
+              currentPage.add(pk);
+              PokemonSpecie? specie = await PokeAPI.getObject<PokemonSpecie>(pokemonList[i].id);
+              if (specie != null){
+                  _speciesMap[pokemonList[i].id] = specie;
+              }
+          }
+      }
       setState(() {
-        _pokemonList = pokemonList.cast<Pokemon>();
+        _pokemonList = currentPage;
         _isLoading = false;
       });
     } catch (e) {
@@ -136,7 +172,7 @@ class MoveDetailState extends State<MoveDetail> {
       };
 
       var shownValues = [
-          _getLocalisedMoveName(loc, widget.move) ?? 'Unknown',
+        getLocalisedMoveName(loc, widget.move) ?? 'Unknown',
           widget.move.accuracy != null ? "${widget.move.accuracy!}%" : loc.always_hits,
           widget.move.power?.toString() ?? '--',
           widget.move.pp?.toString() ?? 'Unknown',
@@ -202,8 +238,9 @@ class MoveDetailState extends State<MoveDetail> {
                 itemCount: _pokemonList.length,
                 itemBuilder: (context, index) {
                   final pokemon = _pokemonList[index];
+                  final specie = _speciesMap[pokemon.id]!;
                   return ListTile(
-                    title: Text(pokemon.name ?? 'Unknown'),
+                    title: Text(getLocalPokemonName(loc, specie) ?? 'Unknown'),
                     leading: Image.network(pokemon.sprites?.frontDefault ?? ''),
                   );
                 },

@@ -6,18 +6,9 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:pokeapi/model/pokemon/pokemon-specie.dart';
 import 'package:pokeapi/model/pokemon/pokemon.dart';
 import 'package:pokeapi/pokeapi.dart';
+import "package:pokedex/constants.dart";
+import "package:pokedex/localisation_utils.dart";
 
-/// Returns the local name for the Pokémon species.
-String? _getLocalPokemonName(AppLocalizations loc, PokemonSpecie specie){
-    for (final name in specie.names!){
-        if (name.language?.name != null && name.language!.name!.startsWith(loc.localeName)) {
-            return name.name!;
-        }
-    }
-    return null;
-}
-
-final pokeCountPerPage = 20;
 
 class PokemonList extends StatefulWidget {
     const PokemonList({super.key});
@@ -66,7 +57,7 @@ class PokemonListState extends State<PokemonList> {
                     itemBuilder: (context, index) {
                         final pokemon = _pokemonList[index];
                         final species = _speciesList[index];
-                        String? name = _getLocalPokemonName(
+                        String? name = getLocalPokemonName(
                             AppLocalizations.of(context)!,
                             species
                         );
@@ -106,7 +97,7 @@ class PokemonDetail extends StatelessWidget {
     const PokemonDetail({required this.pokemon, required this.specie, super.key});
 
     List<Widget> _getPokeChildrenList(AppLocalizations loc){
-        String? name = _getLocalPokemonName(loc, specie);
+        String? name = getLocalPokemonName(loc, specie);
 
         var statNames = <String>[
             loc.hp,
@@ -166,7 +157,6 @@ class PokemonDetail extends StatelessWidget {
     @override
     Widget build(BuildContext context) {
         AppLocalizations loc = AppLocalizations.of(context)!;
-        String? _ = _getLocalPokemonName(loc, specie);
 
         return Scaffold(
             appBar: AppBar(
