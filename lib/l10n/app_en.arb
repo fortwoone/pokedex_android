@@ -17,6 +17,7 @@
         "description": "The Pokémon's information. This text is shown in the app bar."
     },
     "move_info": "Move Info",
+    "ability_info": "Ability Info",
     "hp": "HP",
     "@hp": {
         "description": "The Pokémon's Hit Points (HP). Depleting a Pokémon's HP causes it to faint."
@@ -149,5 +150,6 @@
     },
     "physical": "Physical",
     "special": "Special",
-    "status": "Status"
+    "status": "Status",
+    "can_use_ability": "Pokémon who can use this ability:"
 }

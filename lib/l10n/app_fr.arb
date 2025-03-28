@@ -5,6 +5,7 @@
     "history": "Historique",
     "poke_info": "Infos du Pokémon",
     "move_info": "Infos de l'attaque",
+    "ability_info": "Infos de la capacité",
     "hp": "PV",
     "attack": "Attaque",
     "defence": "Défense",
@@ -41,5 +42,6 @@
     "can_learn": "Pokémon ayant accès à cette attaque : ",
     "physical": "Physique",
     "special": "Spécial",
-    "status": "Altération de statut"
+    "status": "Altération de statut",
+    "can_use_ability": "Pokémon pouvant utiliser cette capacité :"
 }

@@ -5,10 +5,10 @@ import 'package:http/http.dart' as http;
 import 'package:pokeapi/model/move/move.dart';
 import 'package:pokeapi/model/pokemon/pokemon-specie.dart';
 import 'package:pokeapi/model/pokemon/pokemon.dart';
+import "package:pokeapi/model/utils/converter.dart";
 import 'package:pokeapi/pokeapi.dart';
 import "package:pokedex/constants.dart";
 import "package:pokedex/localisation_utils.dart";
-import "package:pokeapi/model/utils/converter.dart";
 
 
 // Holds the ID and name of the Pokémon so it can be used later on.
@@ -112,14 +112,6 @@ class MoveDetailState extends State<MoveDetail> {
   Map<int, PokemonSpecie> _speciesMap = {};
   bool _isLoading = true;
 
-  final TextStyle statNameTextStyle = const TextStyle(
-      fontSize: 18,
-      fontWeight: FontWeight.bold
-  );
-  final TextStyle statValueTextStyle = const TextStyle(
-      fontSize: 18
-  );
-
   @override
   void initState() {
     super.initState();
@@ -131,7 +123,7 @@ class MoveDetailState extends State<MoveDetail> {
       _speciesMap.clear();
       final List<_PkmnReference> pokemonList = await _getPokemonForMove(widget.move);
       List<Pokemon> currentPage = [];
-      for (int i = 0; i < (pokeCountPerPage / 2); ++i){
+      for (int i = 0; i < pokeCountPerPageInInfo; ++i){
           Pokemon? pk = await PokeAPI.getObject<Pokemon>(pokemonList[i].id);
           if (pk != null){
               currentPage.add(pk);
@@ -226,13 +218,10 @@ class MoveDetailState extends State<MoveDetail> {
               child: Column(
                   children: [
                       Table(
-                          columnWidths: const {
-                              0: FlexColumnWidth(1),
-                              1: FlexColumnWidth(2),
-                          },
+                          columnWidths: statTableColumnWidths,
                           children: _getMoveInfo(loc),
                       ),
-                      const SizedBox(height: 20),
+                      spacingBetweenStatsAndPKMN,
                       Text(loc.can_learn, style: TextStyle(fontWeight: FontWeight.bold)),
                       Expanded(
                           child: ListView.builder(

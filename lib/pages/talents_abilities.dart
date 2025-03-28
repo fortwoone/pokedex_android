@@ -1,6 +1,10 @@
+import "dart:math";
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import "package:pokeapi/model/pokemon/ability.dart";
+import "package:pokeapi/model/pokemon/pokemon-specie.dart";
+import "package:pokeapi/model/pokemon/pokemon.dart";
+import "package:pokeapi/model/utils/converter.dart";
 import "package:pokeapi/pokeapi.dart";
 import "package:pokedex/constants.dart";
 import "package:pokedex/localisation_utils.dart";
@@ -81,12 +85,130 @@ class TalentDetail extends StatefulWidget{
 }
 
 class _TalentDetailState extends State<TalentDetail>{
+    List<Pokemon> _pokemonList = [];
+    Map<int, PokemonSpecie> _speciesMap = {};
+    bool _isLoading = true;
 
+    @override
+    void initState(){
+        super.initState();
+        _fetchPokemon();
+    }
+
+    List<TableRow> _getAbilityDescChildren(AppLocalizations loc){
+        var ret = <TableRow>[];
+
+        var colNames = [
+            loc.move_name,
+            loc.effect
+        ];
+        var colValues = [
+            getLocalisedAbilityName(loc, widget.ability),
+            getLocalisedAbilityEffect(loc, widget.ability)
+        ];
+
+        for (int i = 0; i < colNames.length; ++i){
+            ret.add(
+                TableRow(
+                    children: [
+                        Text(
+                            colNames[i],
+                            style: statNameTextStyle
+                        ),
+                        Text(
+                            colValues[i] ?? "Unknown",
+                            style: statValueTextStyle
+                        )
+                    ]
+                )
+            );
+        }
+
+        return ret;
+    }
+
+    Future<void> _fetchPokemon() async{
+        for (int i = 0; i < pokeCountPerPageInInfo; ++i){
+            try{
+                int id = int.parse(
+                    Converter.urlToId(
+                        widget.ability.pokemon![i].url!
+                    )
+                );
+                Pokemon? pkmn = await PokeAPI.getObject<Pokemon>(id);
+                if (pkmn != null){
+                    _pokemonList.add(pkmn);
+                    PokemonSpecie? specie = await PokeAPI.getObject<PokemonSpecie>(id);
+                    if (specie != null){
+                        _speciesMap[id] = specie;
+                    }
+                }
+            } catch (e){
+                debugPrint(e.toString());
+                setState(
+                    (){
+                        _isLoading = false;
+                    }
+                );
+            }
+        }
+        setState(
+            (){
+                _isLoading = false;
+            }
+        );
+    }
+
+    Padding _getAbilityInfo(AppLocalizations loc){
+        return Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+                children: [
+                    Table(
+                        columnWidths: statTableColumnWidths,
+                        children: _getAbilityDescChildren(loc)
+                    ),
+                    spacingBetweenStatsAndPKMN,
+                    Text(
+                        loc.can_use_ability,
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)
+                    ),
+                    Expanded(
+                        child: ListView.builder(
+                            itemCount: _pokemonList.length,
+                            itemBuilder: (context, index) {
+                                final pokemon = _pokemonList[index];
+                                final specie = _speciesMap[pokemon.id]!;
+                                return ListTile(
+                                    title: Text(getLocalPokemonName(loc, specie) ?? 'Unknown'),
+                                    leading: Image.network(pokemon.sprites?.frontDefault ?? ''),
+                                );
+                            },
+                        ),
+                    ),
+                ]
+            )
+        );
+    }
 
     @override
     Widget build(BuildContext context){
-        return const Center(
-            child: Text("DUMMY")
+        var loc = AppLocalizations.of(context)!;
+        return Scaffold(
+            appBar: AppBar(
+                title: Text(
+                    loc.ability_info,
+                    style: TextStyle(
+                        color:Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold
+                    )
+                ),
+                backgroundColor: Colors.red
+            ),
+            body: _isLoading ? const Center(
+                child: CircularProgressIndicator()
+            ) : _getAbilityInfo(loc)
         );
     }
 }

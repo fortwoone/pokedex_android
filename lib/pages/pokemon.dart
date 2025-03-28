@@ -86,14 +86,6 @@ class PokemonDetail extends StatelessWidget {
     final Pokemon pokemon;
     final PokemonSpecie specie;
 
-    final TextStyle statNameTextStyle = const TextStyle(
-        fontSize: 18,
-        fontWeight: FontWeight.bold
-    );
-    final TextStyle statValueTextStyle = const TextStyle(
-        fontSize: 18
-    );
-
     const PokemonDetail({required this.pokemon, required this.specie, super.key});
 
     // TODO: show the Pokémon's type(s) in addition to all the remaining stuff.
