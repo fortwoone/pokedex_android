@@ -1,15 +1,18 @@
 import "dart:convert";
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:http/http.dart' as http;
 import 'package:pokeapi/model/move/move.dart';
 import 'package:pokeapi/model/pokemon/pokemon-specie.dart';
 import 'package:pokeapi/model/pokemon/pokemon.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:pokeapi/pokeapi.dart';
 import "package:pokedex/constants.dart";
 import "package:pokedex/localisation_utils.dart";
 import "package:pokeapi/model/utils/converter.dart";
 
+
+// Holds the ID and name of the Pokémon so it can be used later on.
+// This allows to only lazily load Pokémon as needed when showing the list.
 class _PkmnReference{
     late String name;
     late int id;
@@ -19,6 +22,7 @@ class _PkmnReference{
         this.id = int.parse(Converter.urlToId(obj["url"]));
     }
 }
+
 
 Future<List<_PkmnReference>> _getPokemonForMove(Move move) async{
     List<_PkmnReference> pkmn = [];
@@ -30,7 +34,6 @@ Future<List<_PkmnReference>> _getPokemonForMove(Move move) async{
     }
     return pkmn;
 }
-
 
 
 class Moves extends StatefulWidget {
@@ -151,6 +154,7 @@ class MoveDetailState extends State<MoveDetail> {
     }
   }
 
+  // TODO: show the move's type as well.
   List<TableRow> _getMoveInfo(AppLocalizations loc){
       List<String> propNames = [
         loc.move_name,

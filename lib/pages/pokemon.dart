@@ -96,6 +96,7 @@ class PokemonDetail extends StatelessWidget {
 
     const PokemonDetail({required this.pokemon, required this.specie, super.key});
 
+    // TODO: show the Pokémon's type(s) in addition to all the remaining stuff.
     List<Widget> _getPokeChildrenList(AppLocalizations loc){
         String? name = getLocalPokemonName(loc, specie);
 
