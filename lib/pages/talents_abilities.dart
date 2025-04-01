@@ -17,8 +17,8 @@ class TalentInfo extends StatefulWidget{
 }
 
 class _TalentInfoState extends State<TalentInfo> {
-    // TODO: implement the data fetching stuff.
     List<Ability> _abilitiesList = [];
+    int _offset = 1;
     bool _isLoading = true;
 
     @override
@@ -30,7 +30,7 @@ class _TalentInfoState extends State<TalentInfo> {
     Future<void> _fetchAbilityList() async{
         try {
             final abilitiesList = await PokeAPI.getObjectList<Ability>(
-                1, pokeCountPerPage
+                _offset, pokeCountPerPage
             ); // Fetch first 20 abilities
             setState(() {
                 _abilitiesList = abilitiesList.cast<Ability>();
@@ -47,6 +47,38 @@ class _TalentInfoState extends State<TalentInfo> {
 
     @override
     Widget build(BuildContext context){
+        var prevAndNext = <Widget>[];
+        if (_offset > 20){
+            prevAndNext.add(
+                IconButton(
+                    icon: Icon(Icons.arrow_back),
+                    onPressed: (){
+                        setState(
+                                (){
+                                _offset -= 20;
+                                _isLoading = true;
+                                _fetchAbilityList();
+                            }
+                        );
+                    }
+                )
+            );
+        }
+        prevAndNext.add(
+            IconButton(
+                icon: Icon(Icons.arrow_forward),
+                onPressed:(){
+                    setState(
+                            (){
+                            _offset += 20;
+                            _isLoading = true;
+                            _fetchAbilityList();
+                        }
+                    );
+                }
+            )
+        );
+
         var loc = AppLocalizations.of(context);
 
         return Scaffold(
@@ -70,7 +102,11 @@ class _TalentInfoState extends State<TalentInfo> {
                             }
                         );
                     }
-                )
+                ),
+            bottomNavigationBar:Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: prevAndNext
+            )
         );
     }
 }

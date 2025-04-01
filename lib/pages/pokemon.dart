@@ -21,6 +21,7 @@ class PokemonListState extends State<PokemonList> {
     List<Pokemon> _pokemonList = [];
     List<PokemonSpecie> _speciesList = [];
     bool _isLoading = true;
+    int _offset = 1;
 
     @override
     void initState() {
@@ -31,8 +32,8 @@ class PokemonListState extends State<PokemonList> {
     Future<void> _fetchPokemonList() async {
       try {
         // Get all pokemon
-        final pokemonList = await PokeAPI.getObjectList<Pokemon>(1, pokeCountPerPage);
-        final speciesList = await PokeAPI.getObjectList<PokemonSpecie>(1, pokeCountPerPage);
+        final pokemonList = await PokeAPI.getObjectList<Pokemon>(_offset, pokeCountPerPage);
+        final speciesList = await PokeAPI.getObjectList<PokemonSpecie>(_offset, pokeCountPerPage);
         setState(() {
           _pokemonList = pokemonList.cast<Pokemon>();
           _speciesList = speciesList.cast<PokemonSpecie>();
@@ -49,35 +50,71 @@ class PokemonListState extends State<PokemonList> {
 
     @override
     Widget build(BuildContext context) {
+        var prevAndNext = <Widget>[];
+        if (_offset > 20){
+            prevAndNext.add(
+                IconButton(
+                    icon: Icon(Icons.arrow_back),
+                    onPressed: (){
+                        setState(
+                            (){
+                                _offset -= 20;
+                                _isLoading = true;
+                                _fetchPokemonList();
+                            }
+                        );
+                    }
+                )
+            );
+        }
+        prevAndNext.add(
+            IconButton(
+                icon: Icon(Icons.arrow_forward),
+                onPressed:(){
+                    setState(
+                        (){
+                            _offset += 20;
+                            _isLoading = true;
+                            _fetchPokemonList();
+                        }
+                    );
+                }
+            )
+        );
+
         return Scaffold(
             body: _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : ListView.builder(
                     itemCount: _pokemonList.length,
                     itemBuilder: (context, index) {
-                        final pokemon = _pokemonList[index];
-                        final species = _speciesList[index];
-                        String? name = getLocalPokemonName(
-                            AppLocalizations.of(context)!,
-                            species
-                        );
-                        return ListTile(
-                            title: Text(name ?? 'Unknown'),
-                            leading: Image.network(pokemon.sprites?.frontDefault ?? ''),
-                            onTap: () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => PokemonDetail(
-                                            pokemon: pokemon,
-                                            specie: species
-                                        ),
-                                    ),
-                                );
-                          },
-                        );
+                      final pokemon = _pokemonList[index];
+                      final species = _speciesList[index];
+                      String? name = getLocalPokemonName(
+                          AppLocalizations.of(context)!,
+                          species
+                      );
+                      return ListTile(
+                        title: Text(name ?? 'Unknown'),
+                        leading: Image.network(pokemon.sprites?.frontDefault ?? ''),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => PokemonDetail(
+                                  pokemon: pokemon,
+                                  specie: species
+                              ),
+                            ),
+                          );
+                        },
+                      );
                     },
-                ),
+                  ),
+            bottomNavigationBar: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: prevAndNext
+            ),
         );
     }
 }

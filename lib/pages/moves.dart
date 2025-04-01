@@ -46,6 +46,7 @@ class Moves extends StatefulWidget {
 class MovesState extends State<Moves> {
     List<Move> _movesList = [];
     bool _isLoading = true;
+    int _offset = 1;
 
     @override
     void initState() {
@@ -56,7 +57,7 @@ class MovesState extends State<Moves> {
     Future<void> _fetchMovesList() async {
       try {
         final movesList = await PokeAPI.getObjectList<Move>(
-            1, pokeCountPerPage
+            _offset, pokeCountPerPage
         ); // Fetch first 20 moves
         setState(() {
           _movesList = movesList.cast<Move>();
@@ -74,6 +75,37 @@ class MovesState extends State<Moves> {
     @override
     Widget build(BuildContext context) {
         var loc = AppLocalizations.of(context);
+        var prevAndNext = <Widget>[];
+        if (_offset > 20){
+          prevAndNext.add(
+              IconButton(
+                  icon: Icon(Icons.arrow_back),
+                  onPressed: (){
+                    setState(
+                            (){
+                          _offset -= 20;
+                          _isLoading = true;
+                          _fetchMovesList();
+                        }
+                    );
+                  }
+              )
+          );
+        }
+        prevAndNext.add(
+            IconButton(
+                icon: Icon(Icons.arrow_forward),
+                onPressed:(){
+                  setState(
+                          (){
+                        _offset += 20;
+                        _isLoading = true;
+                        _fetchMovesList();
+                      }
+                  );
+                }
+            )
+        );
         return Scaffold(
             body: _isLoading
                 ? const Center(child: CircularProgressIndicator())
@@ -94,6 +126,10 @@ class MovesState extends State<Moves> {
                     );
                 },
             ),
+            bottomNavigationBar:Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: prevAndNext
+            )
         );
     }
 }
