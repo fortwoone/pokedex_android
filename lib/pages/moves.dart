@@ -10,16 +10,18 @@ import 'package:pokeapi/pokeapi.dart';
 import "package:pokedex/constants.dart";
 import "package:pokedex/localisation_utils.dart";
 
+import '../database_historique.dart';
+
 
 // Holds the ID and name of the Pokémon so it can be used later on.
 // This allows to only lazily load Pokémon as needed when showing the list.
-class _PkmnReference{
+class _PkmnReference {
     late String name;
     late int id;
 
     _PkmnReference(Map<String, dynamic> obj) {
-        this.name = obj["name"];
-        this.id = int.parse(Converter.urlToId(obj["url"]));
+        name = obj["name"];
+        id = int.parse(Converter.urlToId(obj["url"]));
     }
 }
 
@@ -44,10 +46,9 @@ class Moves extends StatefulWidget {
 }
 
 class MovesState extends State<Moves> {
-    List<Move> _movesList = [];
+    final List<Move> _movesList = [];
     bool _isLoading = true;
     int _offset = 1;
-    int _minIndexLoaded = 1;
     int _maxOffsetLoaded = 20;
 
     @override
@@ -152,7 +153,7 @@ class MoveDetail extends StatefulWidget {
 
 class MoveDetailState extends State<MoveDetail> {
   List<Pokemon> _pokemonList = [];
-  Map<int, PokemonSpecie> _speciesMap = {};
+  final Map<int, PokemonSpecie> _speciesMap = {};
   bool _isLoading = true;
 
   @override
@@ -167,19 +168,27 @@ class MoveDetailState extends State<MoveDetail> {
       final List<_PkmnReference> pokemonList = await _getPokemonForMove(widget.move);
       List<Pokemon> currentPage = [];
       for (int i = 0; i < pokeCountPerPageInInfo; ++i){
-          Pokemon? pk = await PokeAPI.getObject<Pokemon>(pokemonList[i].id);
-          if (pk != null){
-              currentPage.add(pk);
-              PokemonSpecie? specie = await PokeAPI.getObject<PokemonSpecie>(pokemonList[i].id);
-              if (specie != null){
-                  _speciesMap[pokemonList[i].id] = specie;
-              }
+        Pokemon? pk = await PokeAPI.getObject<Pokemon>(pokemonList[i].id);
+        if (pk != null){
+          currentPage.add(pk);
+          PokemonSpecie? specie = await PokeAPI.getObject<PokemonSpecie>(pokemonList[i].id);
+          if (specie != null){
+            _speciesMap[pokemonList[i].id] = specie;
           }
+        }
       }
       setState(() {
         _pokemonList = currentPage;
         _isLoading = false;
       });
+
+      // Insert activity into the database
+      await DatabaseHistorique().insert({
+        'ressource': 'Looked up info about ${widget.move.name}',
+        'dateAjout': DateTime.now().toIso8601String(),
+        'contentId': widget.move.id,
+      });
+
     } catch (e) {
       setState(() {
         debugPrint(e.toString());
@@ -201,7 +210,7 @@ class MoveDetailState extends State<MoveDetail> {
           loc.effect
       ];
 
-      var dmg_cls_names = {
+      var dmgClsNames = {
           "physical": loc.physical,
           "special": loc.special,
           "status": loc.status
@@ -214,7 +223,7 @@ class MoveDetailState extends State<MoveDetail> {
           widget.move.pp?.toString() ?? 'Unknown',
           widget.move.priority?.toString() ?? 'Unknown',
           widget.move.damageClass?.name != null ?
-          dmg_cls_names[widget.move.damageClass?.name]! : 'Unknown',
+          dmgClsNames[widget.move.damageClass?.name]! : 'Unknown',
           getLocalisedMoveEffect(loc, widget.move) ?? 'Unknown'
       ];
 

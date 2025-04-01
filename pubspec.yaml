@@ -14,8 +14,10 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   intl: any
-  http: any
+  sqflite: ^2.0.0+4
+  path: ^1.8.0
 
+  http: any
 dev_dependencies:
   flutter_test:
     sdk: flutter

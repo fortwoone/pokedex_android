@@ -8,7 +8,7 @@ import 'package:pokeapi/model/pokemon/pokemon.dart';
 import 'package:pokeapi/pokeapi.dart';
 import "package:pokedex/constants.dart";
 import "package:pokedex/localisation_utils.dart";
-
+import '../database_historique.dart';
 
 class PokemonList extends StatefulWidget {
     const PokemonList({super.key});
@@ -18,11 +18,10 @@ class PokemonList extends StatefulWidget {
 }
 
 class PokemonListState extends State<PokemonList> {
-    List<Pokemon> _pokemonList = [];
-    List<PokemonSpecie> _speciesList = [];
+    final List<Pokemon> _pokemonList = [];
+    final List<PokemonSpecie> _speciesList = [];
     bool _isLoading = true;
     int _offset = 1;
-    int _minIndexLoaded = 1;
     int _maxOffsetLoaded = 20;
 
     @override
@@ -126,91 +125,102 @@ class PokemonListState extends State<PokemonList> {
 }
 
 class PokemonDetail extends StatelessWidget {
-    final Pokemon pokemon;
-    final PokemonSpecie specie;
+  final Pokemon pokemon;
+  final PokemonSpecie specie;
 
-    const PokemonDetail({required this.pokemon, required this.specie, super.key});
+  const PokemonDetail({required this.pokemon, required this.specie, super.key});
 
-    // TODO: show the Pokémon's type(s) in addition to all the remaining stuff.
-    List<Widget> _getPokeChildrenList(AppLocalizations loc){
-        String? name = getLocalPokemonName(loc, specie);
+  List<Widget> _getPokeChildrenList(AppLocalizations loc) {
+    String? name = getLocalPokemonName(loc, specie);
 
-        var statNames = <String>[
-            loc.hp,
-            loc.attack,
-            loc.defence,
-            loc.spatk,
-            loc.spdef,
-            loc.speed
-        ];
+    var statNames = <String>[
+      loc.hp,
+      loc.attack,
+      loc.defence,
+      loc.spatk,
+      loc.spdef,
+      loc.speed
+    ];
 
-        var statsTableChildren = <TableRow>[];
-        for (int i = 0; i < statNames.length; ++i){
-            statsTableChildren.add(
-                TableRow(
-                    children: [
-                        Text(
-                            statNames[i],
-                            style: statNameTextStyle
-                        ),
-                        Text(
-                            pokemon.stats![i].baseStat.toString(),
-                            style: statValueTextStyle
-                        )
-                    ]
-                )
-            );
-        }
-
-        var ret = <Widget>[
-            Image.network(
-              pokemon.sprites?.frontDefault ?? '',
-              scale: 0.5,
-              filterQuality: FilterQuality.none,
+    var statsTableChildren = <TableRow>[];
+    for (int i = 0; i < statNames.length; ++i) {
+      statsTableChildren.add(
+        TableRow(
+          children: [
+            Text(
+              statNames[i],
+              style: statNameTextStyle,
             ),
             Text(
-                name ?? 'Unknown',
-                style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20
-                )
+              pokemon.stats![i].baseStat.toString(),
+              style: statValueTextStyle,
             ),
-            Padding(
-                padding: const EdgeInsets.all(32.0),
-                child: Table(
-                    columnWidths: const{
-                        0: FlexColumnWidth(4),
-                        1: FlexColumnWidth(2)
-                    },
-                    children: statsTableChildren
-                )
-            )
-        ];
-
-        return ret;
+          ],
+        ),
+      );
     }
 
-    @override
-    Widget build(BuildContext context) {
-        AppLocalizations loc = AppLocalizations.of(context)!;
+    var ret = <Widget>[
+      Image.network(
+        pokemon.sprites?.frontDefault ?? '',
+        scale: 0.5,
+        filterQuality: FilterQuality.none,
+      ),
+      Text(
+        name ?? 'Unknown',
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: 20,
+        ),
+      ),
+      Padding(
+        padding: const EdgeInsets.all(32.0),
+        child: Table(
+          columnWidths: const {
+            0: FlexColumnWidth(4),
+            1: FlexColumnWidth(2),
+          },
+          children: statsTableChildren,
+        ),
+      ),
+    ];
 
-        return Scaffold(
-            appBar: AppBar(
-                title: Text(
-                    loc.poke_info,
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold
-                    )
-                ),
-                backgroundColor: Colors.red,
-            ),
-            body: Center(
-                child: Column(
-                    children: _getPokeChildrenList(loc)
-                ),
-            ),
-        );
-    }
+    return ret;
+  }
+
+  Future<void> _registerSearchActivity() async {
+    await DatabaseHistorique().insert({
+      'ressource': 'Looked up info about ${pokemon.name}',
+      'dateAjout': DateTime.now().toIso8601String(),
+      'contentId': pokemon.id,
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    AppLocalizations loc = AppLocalizations.of(context)!;
+
+    // Register the search activity
+    _registerSearchActivity();
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          loc.poke_info,
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        backgroundColor: Colors.red,
+      ),
+      body: Center(
+        child: Column(
+          children: _getPokeChildrenList(loc),
+        ),
+      ),
+    );
+  }
+
 }

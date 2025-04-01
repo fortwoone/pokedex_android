@@ -4,7 +4,6 @@ Localisation utility functions.
 
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import "package:flutter/material.dart";
-import "package:pokeapi/model/utils/converter.dart";
 import "package:pokeapi/model/pokemon/ability.dart";
 import 'package:pokeapi/model/pokemon/pokemon-specie.dart';
 import 'package:pokeapi/model/move/move.dart';
