@@ -19,6 +19,8 @@ class TalentInfo extends StatefulWidget{
 class _TalentInfoState extends State<TalentInfo> {
     List<Ability> _abilitiesList = [];
     int _offset = 1;
+    int _minIndexLoaded = 1;
+    int _maxOffsetLoaded = 20;
     bool _isLoading = true;
 
     @override
@@ -55,29 +57,33 @@ class _TalentInfoState extends State<TalentInfo> {
                     onPressed: (){
                         setState(
                                 (){
-                                _offset -= 20;
-                                _isLoading = true;
-                                _fetchAbilityList();
+                                _offset -= pokeCountPerPage;
                             }
                         );
                     }
                 )
             );
         }
-        prevAndNext.add(
-            IconButton(
-                icon: Icon(Icons.arrow_forward),
-                onPressed:(){
-                    setState(
-                            (){
-                            _offset += 20;
-                            _isLoading = true;
-                            _fetchAbilityList();
-                        }
-                    );
-                }
-            )
-        );
+        if (!_isLoading) {
+            // Prevent potential breaking by forbidding advance until the current page is loaded.
+            prevAndNext.add(
+                IconButton(
+                    icon: Icon(Icons.arrow_forward),
+                    onPressed: () {
+                      setState(
+                              () {
+                            _offset += pokeCountPerPage;
+                            if (_offset >= _maxOffsetLoaded) {
+                              _isLoading = true;
+                              _maxOffsetLoaded += pokeCountPerPage;
+                              _fetchAbilityList();
+                            }
+                          }
+                      );
+                    }
+                )
+            );
+        }
 
         var loc = AppLocalizations.of(context);
 

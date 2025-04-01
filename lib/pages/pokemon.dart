@@ -22,6 +22,8 @@ class PokemonListState extends State<PokemonList> {
     List<PokemonSpecie> _speciesList = [];
     bool _isLoading = true;
     int _offset = 1;
+    int _minIndexLoaded = 1;
+    int _maxOffsetLoaded = 20;
 
     @override
     void initState() {
@@ -35,8 +37,8 @@ class PokemonListState extends State<PokemonList> {
         final pokemonList = await PokeAPI.getObjectList<Pokemon>(_offset, pokeCountPerPage);
         final speciesList = await PokeAPI.getObjectList<PokemonSpecie>(_offset, pokeCountPerPage);
         setState(() {
-          _pokemonList = pokemonList.cast<Pokemon>();
-          _speciesList = speciesList.cast<PokemonSpecie>();
+          _pokemonList.addAll(pokemonList.cast<Pokemon>());
+          _speciesList.addAll(speciesList.cast<PokemonSpecie>());
           _isLoading = false;
         });
       } catch (e) {
@@ -58,38 +60,42 @@ class PokemonListState extends State<PokemonList> {
                     onPressed: (){
                         setState(
                             (){
-                                _offset -= 20;
-                                _isLoading = true;
-                                _fetchPokemonList();
+                                _offset -= pokeCountPerPage;
                             }
                         );
                     }
                 )
             );
         }
-        prevAndNext.add(
-            IconButton(
-                icon: Icon(Icons.arrow_forward),
-                onPressed:(){
+        if (!_isLoading) {
+          // Prevent potential breaking by forbidding advance until the current page is loaded.
+          prevAndNext.add(
+              IconButton(
+                  icon: Icon(Icons.arrow_forward),
+                  onPressed: () {
                     setState(
-                        (){
-                            _offset += 20;
+                            () {
+                          _offset += 20;
+                          if (_offset >= _maxOffsetLoaded) {
+                            _maxOffsetLoaded += 20;
                             _isLoading = true;
                             _fetchPokemonList();
+                          }
                         }
                     );
-                }
-            )
-        );
+                  }
+              )
+          );
+        }
 
         return Scaffold(
             body: _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : ListView.builder(
-                    itemCount: _pokemonList.length,
+                    itemCount: pokeCountPerPage,
                     itemBuilder: (context, index) {
-                      final pokemon = _pokemonList[index];
-                      final species = _speciesList[index];
+                      final pokemon = _pokemonList[_offset + index - 1];
+                      final species = _speciesList[_offset + index - 1];
                       String? name = getLocalPokemonName(
                           AppLocalizations.of(context)!,
                           species

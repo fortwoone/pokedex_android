@@ -47,6 +47,8 @@ class MovesState extends State<Moves> {
     List<Move> _movesList = [];
     bool _isLoading = true;
     int _offset = 1;
+    int _minIndexLoaded = 1;
+    int _maxOffsetLoaded = 20;
 
     @override
     void initState() {
@@ -60,7 +62,7 @@ class MovesState extends State<Moves> {
             _offset, pokeCountPerPage
         ); // Fetch first 20 moves
         setState(() {
-          _movesList = movesList.cast<Move>();
+          _movesList.addAll(movesList.cast<Move>());
           _isLoading = false;
         });
       } catch (e) {
@@ -83,36 +85,41 @@ class MovesState extends State<Moves> {
                   onPressed: (){
                     setState(
                             (){
-                          _offset -= 20;
-                          _isLoading = true;
-                          _fetchMovesList();
+                          _offset -= pokeCountPerPage;
                         }
                     );
                   }
               )
           );
         }
-        prevAndNext.add(
-            IconButton(
-                icon: Icon(Icons.arrow_forward),
-                onPressed:(){
-                  setState(
-                          (){
-                        _offset += 20;
-                        _isLoading = true;
-                        _fetchMovesList();
-                      }
-                  );
-                }
-            )
-        );
+        if (!_isLoading) {
+            // Prevent potential breaking by forbidding advance until the current page is loaded.
+            prevAndNext.add(
+                IconButton(
+                    icon: Icon(Icons.arrow_forward),
+                    onPressed: () {
+                      setState(
+                              () {
+                            _offset += pokeCountPerPage;
+                            if (_offset >= _maxOffsetLoaded) {
+                              _maxOffsetLoaded += pokeCountPerPage;
+                              _isLoading = true;
+                              _fetchMovesList();
+                            }
+                          }
+                      );
+                    }
+                )
+            );
+        }
+
         return Scaffold(
             body: _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : ListView.builder(
-                itemCount: _movesList.length,
+                itemCount: pokeCountPerPage,
                 itemBuilder: (context, index) {
-                    final move = _movesList[index];
+                    final move = _movesList[_offset + index - 1];
                     return ListTile(
                         title: Text(getLocalisedMoveName(loc!, move) ?? 'Unknown'),
                         onTap: () {
