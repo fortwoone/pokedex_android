@@ -27,6 +27,10 @@ class DatabaseHistorique {
     );
   }
 
+  // TODO: Replace 'ressource' with an integer instead, representing the resource ID
+  // used for the query upon selecting an item in the history.
+  // Also add two columns representing the English and French names
+  // of the current resource, so these are displayed depending on the language.
   Future<void> _onCreate(Database db, int version) async {
     await db.execute('''
     CREATE TABLE historique (
