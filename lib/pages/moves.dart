@@ -1,4 +1,5 @@
 import "dart:convert";
+import "dart:math";
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:http/http.dart' as http;
@@ -167,7 +168,7 @@ class MoveDetailState extends State<MoveDetail> {
       _speciesMap.clear();
       final List<_PkmnReference> pokemonList = await _getPokemonForMove(widget.move);
       List<Pokemon> currentPage = [];
-      for (int i = 0; i < pokeCountPerPageInInfo; ++i){
+      for (int i = 0; i < min(pokemonList.length, pokeCountPerPageInInfo); ++i){
         Pokemon? pk = await PokeAPI.getObject<Pokemon>(pokemonList[i].id);
         if (pk != null){
           currentPage.add(pk);
@@ -198,9 +199,34 @@ class MoveDetailState extends State<MoveDetail> {
     }
   }
 
-  // TODO: show the move's type as well.
+  String getMoveType(AppLocalizations loc){
+      var typeNames = {
+        "normal": loc.normal,
+        "fighting": loc.fighting,
+        "ghost": loc.ghost,
+        "poison": loc.poison,
+        "flying": loc.flying,
+        "ground": loc.ground,
+        "rock": loc.rock,
+        "bug": loc.bug,
+        "steel": loc.steel,
+        "fire": loc.fire,
+        "water": loc.water,
+        "grass": loc.grass,
+        "electric": loc.electric,
+        "psychic": loc.psychic,
+        "dark": loc.dark,
+        "ice": loc.ice,
+        "dragon": loc.dragon,
+        "fairy": loc.fairy,
+        "stellar": loc.stellar
+      };
+      return typeNames[widget.move.type!.name!]!;
+  }
+
   List<TableRow> _getMoveInfo(AppLocalizations loc){
       List<String> propNames = [
+          loc.type,
           loc.move_name,
           loc.move_accuracy,
           loc.move_power,
@@ -217,6 +243,7 @@ class MoveDetailState extends State<MoveDetail> {
       };
 
       var shownValues = [
+          getMoveType(loc),
           getLocalisedMoveName(loc, widget.move) ?? 'Unknown',
           widget.move.accuracy != null ? "${widget.move.accuracy!}%" : loc.always_hits,
           widget.move.power?.toString() ?? '--',
@@ -283,7 +310,9 @@ class MoveDetailState extends State<MoveDetail> {
                                   final specie = _speciesMap[pokemon.id]!;
                                   return ListTile(
                                       title: Text(getLocalPokemonName(loc, specie) ?? 'Unknown'),
-                                      leading: Image.network(pokemon.sprites?.frontDefault ?? ''),
+                                      leading: Image.network(
+                                          pokemon.sprites?.frontDefault ?? '',
+                                      ),
                                   );
                               },
                           ),

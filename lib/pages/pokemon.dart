@@ -130,10 +130,43 @@ class PokemonDetail extends StatelessWidget {
 
   const PokemonDetail({required this.pokemon, required this.specie, super.key});
 
+  String getTypes(AppLocalizations loc){
+      var typeNames = {
+        "normal": loc.normal,
+        "fighting": loc.fighting,
+        "ghost": loc.ghost,
+        "poison": loc.poison,
+        "flying": loc.flying,
+        "ground": loc.ground,
+        "rock": loc.rock,
+        "bug": loc.bug,
+        "steel": loc.steel,
+        "fire": loc.fire,
+        "water": loc.water,
+        "grass": loc.grass,
+        "electric": loc.electric,
+        "psychic": loc.psychic,
+        "dark": loc.dark,
+        "ice": loc.ice,
+        "dragon": loc.dragon,
+        "fairy": loc.fairy,
+        "stellar": loc.stellar
+      };
+
+      var types = <String>[];
+      for (final type in pokemon.types!){
+          types.add(
+              typeNames[type.type!.name!]!
+          );
+      }
+      return types.join(", ");
+  }
+
   List<Widget> _getPokeChildrenList(AppLocalizations loc) {
     String? name = getLocalPokemonName(loc, specie);
 
     var statNames = <String>[
+      loc.type,
       loc.hp,
       loc.attack,
       loc.defence,
@@ -152,7 +185,7 @@ class PokemonDetail extends StatelessWidget {
               style: statNameTextStyle,
             ),
             Text(
-              pokemon.stats![i].baseStat.toString(),
+              i > 0 ? pokemon.stats![i - 1].baseStat.toString() : getTypes(loc),
               style: statValueTextStyle,
             ),
           ],

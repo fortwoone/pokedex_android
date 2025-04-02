@@ -11,6 +11,7 @@
     "defence": "Défense",
     "spatk": "Attaque Spé.",
     "spdef": "Défense Spé.",
+    "type": "Type : ",
     "speed": "Vitesse",
     "normal": "Normal",
     "fighting": "Combat",
@@ -43,5 +44,6 @@
     "physical": "Physique",
     "special": "Spécial",
     "status": "Altération de statut",
-    "can_use_ability": "Pokémon pouvant utiliser cette capacité :"
+    "can_use_ability": "Pokémon pouvant utiliser cette capacité :",
+    "cant_use_check": "ne peut pas être utilisée."
 }

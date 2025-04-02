@@ -47,14 +47,18 @@ int _compareFTE(_FlavourTextEntry a, _FlavourTextEntry b){
     return a.versionGrpId - b.versionGrpId;
 }
 
-List<_FlavourTextEntry> _getFlavourTextEntries<T>(String locale, T obj){
+List<_FlavourTextEntry> _getFlavourTextEntries<T>(AppLocalizations loc, T obj){
     if (T != Move && T != Ability) {
         throw UnsupportedError("Wrong type.");
     }
     List<_FlavourTextEntry> ret = [];
+    String locale = loc.localeName;
     if (T == Move) {
         for (final flavTxtEntry in (obj as Move).flavorTextEntries!){
             if (flavTxtEntry.language?.name != null && flavTxtEntry.language!.name!.startsWith(locale)){
+                if (flavTxtEntry.flavorText!.contains(loc.cant_use_check)){
+                    continue;
+                }
                 ret.add(
                     _FlavourTextEntry.fromMFTE(flavTxtEntry)
                 );
@@ -89,7 +93,7 @@ String? getLocalisedMoveEffect(AppLocalizations loc, Move move){
             return effEntryObj.shortEffect;
         }
     }
-    var flavs = _getFlavourTextEntries<Move>(loc.localeName, move);
+    var flavs = _getFlavourTextEntries<Move>(loc, move);
     try{
         return flavs.last.content;
     }
@@ -123,7 +127,7 @@ String? getLocalisedAbilityEffect(AppLocalizations loc, Ability ability){
             return effEntryObj.shortEffect;
         }
     }
-    var flavs = _getFlavourTextEntries<Ability>(loc.localeName, ability);
+    var flavs = _getFlavourTextEntries<Ability>(loc, ability);
     try{
         return flavs.last.content;
     }

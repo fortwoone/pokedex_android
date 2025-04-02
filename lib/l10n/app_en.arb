@@ -38,6 +38,7 @@
     "@spdef": {
         "description": "The Pokémon's special defence. Factored in to reduce damage from special moves."
     },
+    "type": "Type: ",
     "speed": "Speed",
     "@speed": {
         "description": "The Pokémon's speed. Determines turn order (unless move priority comes into play)."
@@ -151,5 +152,6 @@
     "physical": "Physical",
     "special": "Special",
     "status": "Status",
-    "can_use_ability": "Pokémon who can use this ability:"
+    "can_use_ability": "Pokémon who can use this ability:",
+    "cant_use_check": "can't be used"
 }
