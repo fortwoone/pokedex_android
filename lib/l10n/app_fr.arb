@@ -46,5 +46,14 @@
     "status": "Altération de statut",
     "can_use_ability": "Pokémon pouvant utiliser cette capacité :",
     "cant_use_check": "ne peut pas être utilisée.",
-    "possible_moves": "Peut apprendre les attaques : "
+    "possible_moves": "Peut apprendre les attaques : ",
+    "settings": "Paramètres",
+    "theme": "Thème",
+    "light_theme": "Clair",
+    "dark_theme": "Sombre",
+    "enable_history": "Activer l'historique",
+    "about": "À propos de cette application",
+    "made_by": "Développé par: ",
+    "devs": "Arthur DENAUX et Virgil-Shaun KOH",
+    "pokemon_legal": "Pokémon ©1995-2025 The Pokémon Company. Tous les noms de personnages montrés sont des marques réservées par The Pokémon Company. Les développeurs ne revendiquent aucune affiliation avec Nintendo, Game Freak ou The Pokémon Company."
 }

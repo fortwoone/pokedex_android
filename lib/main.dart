@@ -50,7 +50,156 @@ class _HistoryNavItem extends StatelessWidget{
         );
     }
 }
+// endregion
 
+// region Drawer items
+class _MainDrawerHeader extends StatelessWidget{
+    @override
+    Widget build(BuildContext context){
+        AppLocalizations loc = AppLocalizations.of(context)!;
+        return const DrawerHeader(
+            decoration: BoxDecoration(color: Colors.red),
+            child: Text(
+                "Menu",
+                style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold
+                )
+            )
+        );
+    }
+}
+
+class _AboutScreen extends StatelessWidget{
+    @override
+    Widget build(BuildContext context){
+        var loc = AppLocalizations.of(context)!;
+        return Scaffold(
+            appBar: AppBar(
+                leading: BackButton(
+                    onPressed: (){
+                        Navigator.pop(context);
+                    }
+                ),
+                title: Text(
+                    loc.about,
+                    style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                    )
+                ),
+                backgroundColor: Colors.red
+            ),
+            body: Center(
+                child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children:[
+                        Text(
+                            loc.appTitle,
+                            style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold
+                            )
+                        ),
+                        Text(
+                            loc.made_by,
+                            style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold
+                            )
+                        ),
+                        Text(
+                            loc.devs,
+                            style: TextStyle(
+                                fontSize: 16
+                            )
+                        ),
+                        SizedBox(
+                            width: 15,
+                            height: 16
+                        ),
+                        Center(
+                            child: Text(
+                                loc.pokemon_legal,
+                                style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold
+                                )
+                            )
+                        )
+                    ]
+                )
+            )
+        );
+    }
+}
+
+class SettingsScreen extends StatelessWidget{
+    // TODO: make it impact how the app works, and save the settings.
+    @override
+    Widget build(BuildContext context) {
+        AppLocalizations loc = AppLocalizations.of(context)!;
+        return Scaffold(
+            appBar: AppBar(
+                backgroundColor: Colors.red,
+                leading: BackButton(
+                    onPressed: (){
+                        Navigator.pop(context);
+                    }
+                ),
+                title: Text(
+                    loc.settings,
+                    style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white
+                    )
+                )
+            )
+        );
+    }
+}
+
+class _SettingsDrawerItem extends StatelessWidget{
+    @override
+    Widget build(BuildContext context) {
+        return ListTile(
+            title: Text(
+                AppLocalizations.of(context)!.settings
+            ),
+            onTap: (){
+                Navigator.pop(context);
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => SettingsScreen()
+                    )
+                );
+            }
+        );
+    }
+}
+
+class _AboutDrawerItem extends StatelessWidget{
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+        title: Text(
+            AppLocalizations.of(context)!.about
+        ),
+        onTap: (){
+            Navigator.pop(context);
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => _AboutScreen()
+                )
+            );
+        }
+    );
+  }
+}
 // endregion
 
 class MainApp extends StatefulWidget {
@@ -108,6 +257,16 @@ class _MainAppState extends State<MainApp> {
                         )
                     ),
                     backgroundColor: Colors.red
+                ),
+                drawer: Drawer(
+                    child: ListView(
+                        padding: EdgeInsets.zero,
+                        children: [
+                            _MainDrawerHeader(),
+                            _AboutDrawerItem(),
+                            _SettingsDrawerItem()
+                        ]
+                    )
                 ),
                 bottomNavigationBar: NavigationBar(
                     onDestinationSelected: (int index){

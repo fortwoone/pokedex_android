@@ -154,5 +154,14 @@
     "status": "Status",
     "can_use_ability": "Pokémon who can use this ability:",
     "cant_use_check": "can't be used",
-    "possible_moves": "Possible Moves:"
+    "possible_moves": "Possible Moves:",
+    "settings": "Settings",
+    "theme": "Theme",
+    "light_theme": "Light",
+    "dark_theme": "Dark",
+    "enable_history": "Enable History",
+    "about": "About",
+    "made_by": "Made By: ",
+    "devs": "Arthur DENAUX and Virgil-Shaun KOH",
+    "pokemon_legal": "Pokémon ©1995-2025 The Pokémon Company. All character names shown are trademarks of The Pokémon Company. The developers do NOT claim any affiliation with Nintendo, Game Freak or The Pokémon Company."
 }
