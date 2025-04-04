@@ -153,5 +153,6 @@
     "special": "Special",
     "status": "Status",
     "can_use_ability": "Pokémon who can use this ability:",
-    "cant_use_check": "can't be used"
+    "cant_use_check": "can't be used",
+    "possible_moves": "Possible Moves:"
 }

@@ -1,10 +1,13 @@
 // a page to display all pokemons or a specific pokemon
 // we use the pokeapi package to get the data
 
+import "dart:math";
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:pokeapi/model/pokemon/pokemon-specie.dart';
 import 'package:pokeapi/model/pokemon/pokemon.dart';
+import 'package:pokeapi/model/move/move.dart';
+import "package:pokeapi/model/utils/converter.dart";
 import 'package:pokeapi/pokeapi.dart';
 import "package:pokedex/constants.dart";
 import "package:pokedex/localisation_utils.dart";
@@ -124,11 +127,21 @@ class PokemonListState extends State<PokemonList> {
     }
 }
 
-class PokemonDetail extends StatelessWidget {
+class PokemonDetail extends StatefulWidget {
   final Pokemon pokemon;
   final PokemonSpecie specie;
 
   const PokemonDetail({required this.pokemon, required this.specie, super.key});
+
+  @override
+  State<PokemonDetail> createState() => _PokemonDetailState();
+}
+
+class _PokemonDetailState extends State<PokemonDetail> {
+  int _offset = 0;
+  int _maxLoadedOffset = 4;
+  List<Move> _moves = [];
+  bool _isLoading = true;
 
   String getTypes(AppLocalizations loc){
       var typeNames = {
@@ -154,7 +167,7 @@ class PokemonDetail extends StatelessWidget {
       };
 
       var types = <String>[];
-      for (final type in pokemon.types!){
+      for (final type in widget.pokemon.types!){
           types.add(
               typeNames[type.type!.name!]!
           );
@@ -162,8 +175,14 @@ class PokemonDetail extends StatelessWidget {
       return types.join(", ");
   }
 
+  @override
+  void initState(){
+    super.initState();
+    _getMoves();
+  }
+
   List<Widget> _getPokeChildrenList(AppLocalizations loc) {
-    String? name = getLocalPokemonName(loc, specie);
+    String? name = getLocalPokemonName(loc, widget.specie);
 
     var statNames = <String>[
       loc.type,
@@ -185,7 +204,7 @@ class PokemonDetail extends StatelessWidget {
               style: statNameTextStyle,
             ),
             Text(
-              i > 0 ? pokemon.stats![i - 1].baseStat.toString() : getTypes(loc),
+              i > 0 ? widget.pokemon.stats![i - 1].baseStat.toString() : getTypes(loc),
               style: statValueTextStyle,
             ),
           ],
@@ -193,9 +212,48 @@ class PokemonDetail extends StatelessWidget {
       );
     }
 
+    var prevAndNext = <Widget>[];
+    if (_offset > 4){
+        prevAndNext.add(
+            IconButton(
+                icon: Icon(Icons.arrow_back),
+                onPressed: (){
+                    setState(
+                        (){
+                            _offset -= 5;
+                        }
+                    );
+                }
+            )
+        );
+    }
+    if (_offset < widget.pokemon.moves!.length){
+        prevAndNext.add(
+            IconButton(
+                icon: Icon(Icons.arrow_forward),
+                onPressed: (){
+                    setState(
+                        (){
+                            _offset += 5;
+                            if (_offset >= _maxLoadedOffset){
+                                setState(
+                                    (){
+                                        _maxLoadedOffset += 5;
+                                        _isLoading = true;
+                                        _getMoves();
+                                    }
+                                );
+                            }
+                        }
+                    );
+                }
+            )
+        );
+    }
+
     var ret = <Widget>[
       Image.network(
-        pokemon.sprites?.frontDefault ?? '',
+        widget.pokemon.sprites?.frontDefault ?? '',
         scale: 0.5,
         filterQuality: FilterQuality.none,
       ),
@@ -216,16 +274,65 @@ class PokemonDetail extends StatelessWidget {
           children: statsTableChildren,
         ),
       ),
+      spacingBetweenStatsAndPKMN,
+      Text(loc.possible_moves, style: TextStyle(fontWeight: FontWeight.bold)),
+      Expanded(
+          child: Scaffold(
+              body: ListView.builder(
+                  itemCount: min(5, _moves.length - _offset),
+                  itemBuilder: (context, int index){
+                      final move = _moves[_offset + index];
+                      return ListTile(
+                          title: Text(getLocalisedMoveName(loc, move) ?? "Unknown")
+                      );
+                  }
+              ),
+              bottomNavigationBar: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: prevAndNext
+              )
+          )
+      )
     ];
 
     return ret;
   }
 
+  Future<void> _getMoves() async{
+      try{
+          for (int i = 0; i < min(5, (widget.pokemon.moves!.length - _offset)); ++i){
+              Move? mv = await PokeAPI.getObject<Move>(
+                  int.parse(
+                      Converter.urlToId(
+                          widget.pokemon.moves![_offset + i].move!.url!
+                      )
+                  )
+              );
+              if (mv != null) {
+                  _moves.add(mv);
+              }
+          }
+          setState(
+              (){
+                  _isLoading = false;
+              }
+          );
+      }
+      catch (e){
+          debugPrint(e.toString());
+          setState(
+              (){
+                 _isLoading = false;
+              }
+          );
+      }
+  }
+
   Future<void> _registerSearchActivity() async {
     await DatabaseHistorique().insert({
-      'ressource': 'Looked up info about ${pokemon.name}',
+      'ressource': 'Looked up info about ${widget.pokemon.name}',
       'dateAjout': DateTime.now().toIso8601String(),
-      'contentId': pokemon.id,
+      'contentId': widget.pokemon.id,
     });
   }
 
@@ -248,12 +355,13 @@ class PokemonDetail extends StatelessWidget {
         ),
         backgroundColor: Colors.red,
       ),
-      body: Center(
+      body: _isLoading ? const Center(
+          child: CircularProgressIndicator()
+      ): Center(
         child: Column(
           children: _getPokeChildrenList(loc),
         ),
       ),
     );
   }
-
 }

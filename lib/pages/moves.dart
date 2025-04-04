@@ -156,48 +156,101 @@ class MoveDetailState extends State<MoveDetail> {
   List<Pokemon> _pokemonList = [];
   final Map<int, PokemonSpecie> _speciesMap = {};
   bool _isLoading = true;
+  int _offset = 0;
+  int _maxLoadedOffset = 9;
+  List<_PkmnReference> _refList = [];
 
   @override
   void initState() {
     super.initState();
-    _fetchPokemonList();
+    _initRefList();
   }
 
-  Future<void> _fetchPokemonList() async {
-    try {
-      _speciesMap.clear();
-      final List<_PkmnReference> pokemonList = await _getPokemonForMove(widget.move);
-      List<Pokemon> currentPage = [];
-      for (int i = 0; i < min(pokemonList.length, pokeCountPerPageInInfo); ++i){
-        Pokemon? pk = await PokeAPI.getObject<Pokemon>(pokemonList[i].id);
-        if (pk != null){
-          currentPage.add(pk);
-          PokemonSpecie? specie = await PokeAPI.getObject<PokemonSpecie>(pokemonList[i].id);
-          if (specie != null){
-            _speciesMap[pokemonList[i].id] = specie;
-          }
-        }
+  Future<void> _initRefList() async{
+      try{
+          _refList = await _getPokemonForMove(widget.move);
+          await DatabaseHistorique().insert({
+              'ressource': 'Looked up info about ${widget.move.name}',
+              'dateAjout': DateTime.now().toIso8601String(),
+              'contentId': widget.move.id,
+          });
+          _fetchPokemonList();
       }
-      setState(() {
-        _pokemonList = currentPage;
-        _isLoading = false;
-      });
-
-      // Insert activity into the database
-      await DatabaseHistorique().insert({
-        'ressource': 'Looked up info about ${widget.move.name}',
-        'dateAjout': DateTime.now().toIso8601String(),
-        'contentId': widget.move.id,
-      });
-
-    } catch (e) {
-      setState(() {
-        debugPrint(e.toString());
-        _isLoading = false;
-      });
-      // Handle error
-    }
+      catch (e){
+          setState(
+              (){
+                  debugPrint(e.toString());
+                  _isLoading = false;
+              }
+          );
+      }
   }
+
+  Future<void> _fetchPokemonList() async{
+      try {
+          for (int i = 0; i < min(_refList.length - _offset, pokeCountPerPageInInfo); ++i){
+              Pokemon? pk = await PokeAPI.getObject<Pokemon>(
+                  _refList[_offset + i].id);
+              if (pk != null) {
+                  _pokemonList.add(pk);
+                  PokemonSpecie? specie = await PokeAPI.getObject<PokemonSpecie>(
+                      _refList[_offset + i].id);
+                  if (specie != null) {
+                      _speciesMap[_refList[_offset + i].id] = specie;
+                  }
+              }
+          }
+          setState(
+              (){
+                  _isLoading = false;
+              }
+          );
+      }
+      catch (e){
+          debugPrint(e.toString());
+          setState(
+              (){
+                  _isLoading = false;
+              }
+          );
+      }
+  }
+
+  // Future<void> _fetchPokemonList() async {
+  //   try {
+  //     _speciesMap.clear();
+  //     final List<_PkmnReference> pokemonList = await _getPokemonForMove(widget.move);
+  //     List<Pokemon> currentPage = [];
+  //     for (int i = 0; i < min(pokemonList.length, pokeCountPerPageInInfo); ++i){
+  //       Pokemon? pk = await PokeAPI.getObject<Pokemon>(pokemonList[_offset + i].id);
+  //       if (pk != null){
+  //         currentPage.add(pk);
+  //         PokemonSpecie? specie = await PokeAPI.getObject<PokemonSpecie>(pokemonList[_offset + i].id);
+  //         if (specie != null){
+  //           _speciesMap[pokemonList[_offset + i].id] = specie;
+  //         }
+  //       }
+  //     }
+  //     setState(() {
+  //       _pokemonList = currentPage;
+  //       _isLoading = false;
+  //     });
+  //
+  //     // Insert activity into the database
+  //     await DatabaseHistorique().insert({
+  //       'ressource': 'Looked up info about ${widget.move.name}',
+  //       'dateAjout': DateTime.now().toIso8601String(),
+  //       'contentId': widget.move.id,
+  //     });
+  //
+  //   } catch (e) {
+  //     setState(() {
+  //       debugPrint(e.toString());
+  //       _isLoading = false;
+  //     });
+  //     // Handle error
+  //   }
+  // }
 
   String getMoveType(AppLocalizations loc){
       var typeNames = {
@@ -278,6 +331,45 @@ class MoveDetailState extends State<MoveDetail> {
   Widget build(BuildContext context) {
       var loc = AppLocalizations.of(context)!;
 
+      var prevAndNext = <Widget>[];
+      if (_offset > 9){
+          prevAndNext.add(
+              IconButton(
+                  icon: Icon(Icons.arrow_back),
+                  onPressed: (){
+                      setState(
+                          (){
+                              _offset -= pokeCountPerPage;
+                          }
+                      );
+                  }
+              )
+          );
+      }
+      if (_offset < _refList.length - pokeCountPerPageInInfo){
+          prevAndNext.add(
+              IconButton(
+                  icon: Icon(Icons.arrow_forward),
+                  onPressed: (){
+                      setState(
+                          (){
+                              _offset += 10;
+                              if (_offset >= _maxLoadedOffset){
+                                  _maxLoadedOffset += 10;
+                                  setState(
+                                      (){
+                                          _isLoading = true;
+                                          _fetchPokemonList();
+                                      }
+                                  );
+                              }
+                          }
+                      );
+                  }
+              )
+          );
+      }
+
       return Scaffold(
           appBar: AppBar(
               title: Text(
@@ -303,19 +395,25 @@ class MoveDetailState extends State<MoveDetail> {
                       spacingBetweenStatsAndPKMN,
                       Text(loc.can_learn, style: TextStyle(fontWeight: FontWeight.bold)),
                       Expanded(
-                          child: ListView.builder(
-                              itemCount: _pokemonList.length,
-                              itemBuilder: (context, index) {
-                                  final pokemon = _pokemonList[index];
-                                  final specie = _speciesMap[pokemon.id]!;
-                                  return ListTile(
-                                      title: Text(getLocalPokemonName(loc, specie) ?? 'Unknown'),
-                                      leading: Image.network(
-                                          pokemon.sprites?.frontDefault ?? '',
-                                      ),
-                                  );
-                              },
-                          ),
+                          child: Scaffold(
+                              body: ListView.builder(
+                                  itemCount: 10,
+                                  itemBuilder: (context, index) {
+                                      final pokemon = _pokemonList[_offset + index];
+                                      final specie = _speciesMap[pokemon.id]!;
+                                      return ListTile(
+                                          title: Text(getLocalPokemonName(loc, specie) ?? 'Unknown'),
+                                          leading: Image.network(
+                                            pokemon.sprites?.frontDefault ?? '',
+                                          ),
+                                      );
+                                  },
+                              ),
+                              bottomNavigationBar:Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                  children: prevAndNext
+                              )
+                          )
                       ),
                   ],
               ),

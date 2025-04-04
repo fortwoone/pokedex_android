@@ -45,5 +45,6 @@
     "special": "Spécial",
     "status": "Altération de statut",
     "can_use_ability": "Pokémon pouvant utiliser cette capacité :",
-    "cant_use_check": "ne peut pas être utilisée."
+    "cant_use_check": "ne peut pas être utilisée.",
+    "possible_moves": "Peut apprendre les attaques : "
 }
