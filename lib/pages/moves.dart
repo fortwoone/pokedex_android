@@ -169,11 +169,15 @@ class MoveDetailState extends State<MoveDetail> {
   Future<void> _initRefList() async{
       try{
           _refList = await _getPokemonForMove(widget.move);
-          await DatabaseHistorique().insert({
-              'ressource': 'Looked up info about ${widget.move.name}',
+          if (DatabaseHistorique.historyEnabled) {
+            await DatabaseHistorique().insert({
+              "en_name": getMoveNameForLang("en", widget.move),
+              "fr_name": getMoveNameForLang("fr", widget.move),
               'dateAjout': DateTime.now().toIso8601String(),
               'contentId': widget.move.id,
-          });
+              "content_type": contentTypeMove
+            });
+          }
           _fetchPokemonList();
       }
       catch (e){

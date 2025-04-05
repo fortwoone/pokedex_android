@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import "package:pokedex/database_historique.dart";
 import 'package:pokedex/pages/pokemon.dart';
 import 'package:pokedex/pages/moves.dart';
 import 'package:pokedex/pages/talents_abilities.dart';
@@ -135,11 +136,96 @@ class _AboutScreen extends StatelessWidget{
     }
 }
 
-class SettingsScreen extends StatelessWidget{
-    // TODO: make it impact how the app works, and save the settings.
+class SettingsScreen extends StatefulWidget{
+    const SettingsScreen({super.key});
+
+    @override
+    State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+    List<Widget> _getWidgets(Orientation orient){
+        AppLocalizations loc = AppLocalizations.of(context)!;
+        List<Widget> ret = [
+            Text(
+                loc.theme,
+                style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold
+                )
+            ),
+            RadioListTile<ThemeMode>(
+                title: Text(loc.light_theme),
+                value: ThemeMode.light,
+                groupValue: _MainAppState.themeNotifier.value,
+                onChanged: (ThemeMode? value){
+                    setState(
+                        (){
+                            _MainAppState.themeNotifier.value = ThemeMode.light;
+                        }
+                    );
+                }
+            ),
+            RadioListTile<ThemeMode>(
+                title: Text(loc.dark_theme),
+                value: ThemeMode.dark,
+                groupValue: _MainAppState.themeNotifier.value,
+                onChanged: (ThemeMode? value){
+                    setState(
+                        (){
+                            _MainAppState.themeNotifier.value = ThemeMode.dark;
+                        }
+                    );
+                }
+            ),
+            Text(
+                loc.misc_settings,
+                style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold
+                )
+            ),
+            Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                    Text(
+                        loc.enable_history
+                    ),
+                    Switch(
+                        value: DatabaseHistorique.historyEnabled,
+                        onChanged: (bool? val){
+                            setState(
+                                (){
+                                    final snackBar = SnackBar(
+                                        content: Text(
+                                            val! ? loc.history_enabled_snackbar : loc.history_disabled_snackbar
+                                        ),
+                                    );
+                                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                                    DatabaseHistorique.historyEnabled = val;
+                                }
+                            );
+                        }
+                    )
+                ]
+            )
+        ];
+        if (orient == Orientation.landscape){
+            ret.add(
+                TextField(
+                    decoration: InputDecoration(
+                        hintText: loc.random_textfield
+                    )
+                )
+            );
+        }
+        return ret;
+    }
+
     @override
     Widget build(BuildContext context) {
         AppLocalizations loc = AppLocalizations.of(context)!;
+        final orient = MediaQuery.of(context).orientation;
         return Scaffold(
             appBar: AppBar(
                 backgroundColor: Colors.red,
@@ -155,6 +241,11 @@ class SettingsScreen extends StatelessWidget{
                         fontWeight: FontWeight.bold,
                         color: Colors.white
                     )
+                )
+            ),
+            body: Center(
+                child: Column(
+                    children: _getWidgets(orient)
                 )
             )
         );
@@ -203,13 +294,16 @@ class _AboutDrawerItem extends StatelessWidget{
 // endregion
 
 class MainApp extends StatefulWidget {
-  const MainApp({super.key});
 
-  @override
-  State<MainApp> createState() => _MainAppState();
+    const MainApp({super.key});
+
+    @override
+    State<MainApp> createState() => _MainAppState();
 }
 
 class _MainAppState extends State<MainApp> {
+    static final ValueNotifier<ThemeMode> themeNotifier = ValueNotifier(ThemeMode.light);
+    static bool _historyEnabled = true;
     int _pageIndex = 0;
 
     Widget _getBodyWidget(){
@@ -229,67 +323,75 @@ class _MainAppState extends State<MainApp> {
 
     @override
     Widget build(BuildContext context) {
-        return MaterialApp(
-            title: "Pokédex",
-            localizationsDelegates: [
-                AppLocalizations.delegate,
-                GlobalMaterialLocalizations.delegate, // Pour traduire les widgets Material
-                GlobalWidgetsLocalizations.delegate, // Pour traduire les widgets génériques
-                GlobalCupertinoLocalizations.delegate, // Pour traduire les widgets iOS (Cupertino)
-            ],
-            supportedLocales:[
-                Locale("en", "US"),
-                Locale("fr", "FR")
-            ],
-            theme: ThemeData(
-                fontFamily: "Lato"
-            ),
-            home: Scaffold(
-                appBar: AppBar(
-                    title: Center(
-                        child: const Text(
-                            "Pokédex",
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold
-                            )
-                        )
+        return ValueListenableBuilder<ThemeMode>(
+            valueListenable: themeNotifier,
+            builder: (_, ThemeMode current, _){
+                return MaterialApp(
+                    title: "Pokédex",
+                    localizationsDelegates: [
+                        AppLocalizations.delegate,
+                        GlobalMaterialLocalizations.delegate, // Pour traduire les widgets Material
+                        GlobalWidgetsLocalizations.delegate, // Pour traduire les widgets génériques
+                        GlobalCupertinoLocalizations.delegate, // Pour traduire les widgets iOS (Cupertino)
+                    ],
+                    supportedLocales:[
+                        Locale("en", "US"),
+                        Locale("fr", "FR")
+                    ],
+                    theme: ThemeData(
+                        fontFamily: "Lato",
+                        primarySwatch: Colors.red
                     ),
-                    backgroundColor: Colors.red
-                ),
-                drawer: Drawer(
-                    child: ListView(
-                        padding: EdgeInsets.zero,
-                        children: [
-                            _MainDrawerHeader(),
-                            _AboutDrawerItem(),
-                            _SettingsDrawerItem()
-                        ]
-                    )
-                ),
-                bottomNavigationBar: NavigationBar(
-                    onDestinationSelected: (int index){
-                        setState(
-                            (){
-                                _pageIndex = index;
-                            }
-                        );
-                    },
-                    indicatorColor: Colors.redAccent,
-                    selectedIndex: _pageIndex,
-                    destinations: <Widget>[
-                        NavigationDestination(
-                            icon: Icon(PokeIcons.pokeball),
-                            label: 'Pokémon',
+                    darkTheme: ThemeData.dark(),
+                    themeMode: current,
+                    home: Scaffold(
+                        appBar: AppBar(
+                            title: Center(
+                                child: const Text(
+                                    "Pokédex",
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.bold
+                                    )
+                                )
+                            ),
+                            backgroundColor: Colors.red
                         ),
-                        _MoveNavItem(),  // these are needed, or else the app will crash when trying to load the translations.
-                        _AbilityNavItem(),
-                        _HistoryNavItem()
-                    ]
-                ),
-                body: _getBodyWidget()
-            )
+                        drawer: Drawer(
+                            child: ListView(
+                                padding: EdgeInsets.zero,
+                                children: [
+                                    _MainDrawerHeader(),
+                                    _AboutDrawerItem(),
+                                    _SettingsDrawerItem()
+                                ]
+                            )
+                        ),
+                        bottomNavigationBar: NavigationBar(
+                            onDestinationSelected: (int index){
+                                setState(
+                                        (){
+                                      _pageIndex = index;
+                                    }
+                                );
+                            },
+                            indicatorColor: Colors.redAccent,
+                            selectedIndex: _pageIndex,
+                            destinations: <Widget>[
+                                NavigationDestination(
+                                    icon: Icon(PokeIcons.pokeball),
+                                    label: 'Pokémon',
+                                ),
+                                _MoveNavItem(),  // these are needed, or else the app will crash when trying to load the translations.
+                                _AbilityNavItem(),
+                                _HistoryNavItem()
+                            ]
+                        ),
+                        body: _getBodyWidget()
+                    )
+                );
+            }
         );
     }
 }

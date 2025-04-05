@@ -20,3 +20,7 @@ final statTableColumnWidths = const{
 };
 
 final spacingBetweenStatsAndPKMN = const SizedBox(height: 20);
+
+final int contentTypePokemon = 0;
+final int contentTypeMove = 1;
+final int contentTypeAbility = 2;

@@ -196,12 +196,16 @@ class _TalentDetailState extends State<TalentDetail> {
       _isLoading = false;
     });
 
-    // Insert activity into the database
-    await DatabaseHistorique().insert({
-      'ressource': 'Looked up info about ${widget.ability.name}',
-      'dateAjout': DateTime.now().toIso8601String(),
-      'contentId': widget.ability.id,
-    });
+    if (DatabaseHistorique.historyEnabled) {
+      // Insert activity into the database
+      await DatabaseHistorique().insert({
+        "en_name": getAbilityNameForLang("en", widget.ability),
+        "fr_name": getAbilityNameForLang("fr", widget.ability),
+        'dateAjout': DateTime.now().toIso8601String(),
+        'contentId': widget.ability.id,
+        "content_type": contentTypeAbility
+      });
+    }
   }
 
   Padding _getAbilityInfo(AppLocalizations loc) {

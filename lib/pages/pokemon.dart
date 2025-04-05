@@ -329,11 +329,13 @@ class _PokemonDetailState extends State<PokemonDetail> {
   }
 
   Future<void> _registerSearchActivity() async {
-    await DatabaseHistorique().insert({
-      'ressource': 'Looked up info about ${widget.pokemon.name}',
-      'dateAjout': DateTime.now().toIso8601String(),
-      'contentId': widget.pokemon.id,
-    });
+      await DatabaseHistorique().insert({
+          "fr_name": getPokemonNameForLang("fr", widget.specie),
+          "en_name": getPokemonNameForLang("en", widget.specie),
+          'dateAjout': DateTime.now().toIso8601String(),
+          'contentId': widget.pokemon.id,
+          "content_type": contentTypePokemon
+      });
   }
 
   @override
@@ -341,7 +343,9 @@ class _PokemonDetailState extends State<PokemonDetail> {
     AppLocalizations loc = AppLocalizations.of(context)!;
 
     // Register the search activity
-    _registerSearchActivity();
+    if (DatabaseHistorique.historyEnabled) {
+      _registerSearchActivity();
+    }
 
     return Scaffold(
       appBar: AppBar(

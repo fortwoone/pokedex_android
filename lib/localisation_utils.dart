@@ -8,10 +8,24 @@ import "package:pokeapi/model/pokemon/ability.dart";
 import 'package:pokeapi/model/pokemon/pokemon-specie.dart';
 import 'package:pokeapi/model/move/move.dart';
 
+String? getPokemonNameForLang(String lang, PokemonSpecie specie){
+    for (final name in specie.names!){
+        if (name.language?.name != null && name.language!.name!.startsWith(lang)){
+            return name.name!;
+        }
+    }
+    return null;
+}
+
 /// Returns the local name for the Pokémon species.
 String? getLocalPokemonName(AppLocalizations loc, PokemonSpecie specie){
-    for (final name in specie.names!){
-        if (name.language?.name != null && name.language!.name!.startsWith(loc.localeName)) {
+    return getPokemonNameForLang(loc.localeName, specie);
+}
+
+
+String? getMoveNameForLang(String lang, Move move){
+    for (final name in move.names!){
+        if (name.language?.name != null && name.language!.name!.startsWith(lang)){
             return name.name!;
         }
     }
@@ -20,12 +34,7 @@ String? getLocalPokemonName(AppLocalizations loc, PokemonSpecie specie){
 
 /// Returns the translated name for a move.
 String? getLocalisedMoveName(AppLocalizations loc, Move move){
-    for (final name in move.names!){
-        if (name.language?.name != null && name.language!.name!.startsWith(loc.localeName)){
-            return name.name!;
-        }
-    }
-    return null;
+    return getMoveNameForLang(loc.localeName, move);
 }
 
 class _FlavourTextEntry{
@@ -103,14 +112,18 @@ String? getLocalisedMoveEffect(AppLocalizations loc, Move move){
     }
 }
 
-/// Returns the translated name for an ability.
-String? getLocalisedAbilityName(AppLocalizations loc, Ability ability){
+String? getAbilityNameForLang(String lang, Ability ability){
     for (final nameObj in ability.names!){
-        if (nameObj.language?.name != null && nameObj.language!.name!.startsWith(loc.localeName)){
+        if (nameObj.language?.name != null && nameObj.language!.name!.startsWith(lang)){
             return nameObj.name!;
         }
     }
     return null;
+}
+
+/// Returns the translated name for an ability.
+String? getLocalisedAbilityName(AppLocalizations loc, Ability ability){
+    return getAbilityNameForLang(loc.localeName, ability);
 }
 
 String? getLocalisedAbilityEffect(AppLocalizations loc, Ability ability){

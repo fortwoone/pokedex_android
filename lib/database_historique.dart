@@ -2,6 +2,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
 class DatabaseHistorique {
+  static bool historyEnabled = false;
   static final DatabaseHistorique _instance = DatabaseHistorique._internal();
   static Database? _database;
 
@@ -23,19 +24,16 @@ class DatabaseHistorique {
       path,
       version: 2,
       onCreate: _onCreate,
-      onUpgrade: _onUpgrade,
     );
   }
 
-  // TODO: Replace 'ressource' with an integer instead, representing the resource ID
-  // used for the query upon selecting an item in the history.
-  // Also add two columns representing the English and French names
-  // of the current resource, so these are displayed depending on the language.
   Future<void> _onCreate(Database db, int version) async {
     await db.execute('''
     CREATE TABLE historique (
       idHistorique INTEGER PRIMARY KEY AUTOINCREMENT,
-      ressource TEXT,
+      content_type INTEGER,
+      fr_name TEXT,
+      en_name TEXT,
       dateAjout DATE,
       contentId INTEGER
     )
@@ -64,17 +62,11 @@ class DatabaseHistorique {
   }
 
   Future<List<Map<String, dynamic>>> queryRecentRows() async {
-    Database db = await database;
-    return await db.query(
-      'historique',
-      orderBy: 'dateAjout DESC',
-      limit: 10,
-    );
-  }
-
-  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
-    if (oldVersion < 2) {
-      await db.execute('ALTER TABLE historique ADD COLUMN contentId INTEGER');
-    }
+      Database db = await database;
+      return await db.query(
+          'historique',
+          orderBy: 'dateAjout DESC',
+          limit: 10,
+      );
   }
 }
